@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>我的工具站</title>
+<style>
+:root {
+  --cyan: #00f0ff;
+  --purple: #c000ff;
+  --pink: #ff0080;
+  --bg: #06060f;
+  --card-bg: rgba(10, 10, 30, 0.7);
+  --text: #d0d0f0;
+  --text-dim: #7070a0;
+}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+/* 霓虹光球背景 */
+.neon-orb {
+  position: fixed;
+  border-radius: 50%;
+  filter: blur(80px);
+  opacity: 0.35;
+  z-index: 0;
+  pointer-events: none;
+  animation: orbFloat 18s ease-in-out infinite;
+}
+.neon-orb.o1 { width: 400px; height: 400px; background: var(--cyan); top: -100px; left: -80px; }
+.neon-orb.o2 { width: 350px; height: 350px; background: var(--purple); top: 40%; right: -100px; animation-delay: -6s; }
+.neon-orb.o3 { width: 300px; height: 300px; background: var(--pink); bottom: -80px; left: 30%; animation-delay: -12s; }
+@keyframes orbFloat {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  33% { transform: translate(40px, -30px) scale(1.1); }
+  66% { transform: translate(-30px, 40px) scale(0.95); }
+}
+#particleCanvas { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 1; pointer-events: none; }
+.scanlines {
+  position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+  background: repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,0,0,0.06) 2px, rgba(0,0,0,0.06) 4px);
+  pointer-events: none; z-index: 2;
+}
+.cursor {
+  width: 12px; height: 12px; border: 2px solid var(--cyan); border-radius: 50%;
+  position: fixed; pointer-events: none; z-index: 9999;
+  transition: transform 0.1s, border-color 0.3s; transform: translate(-50%, -50%);
+  box-shadow: 0 0 12px var(--cyan), 0 0 24px var(--cyan);
+}
+.cursor-dot { width: 4px; height: 4px; background: var(--cyan); border-radius: 50%; position: fixed; pointer-events: none; z-index: 9999; transform: translate(-50%, -50%); }
+.cursor.hover { transform: translate(-50%, -50%) scale(2.5); border-color: var(--pink); box-shadow: 0 0 20px var(--pink); }
+.container { max-width: 640px; margin: 0 auto; padding: 50px 24px 60px; position: relative; z-index: 3; opacity: 0; animation: fadeIn 1s ease 0.3s forwards; }
+@keyframes fadeIn { to { opacity: 1; } }
+.header { text-align: center; margin-bottom: 44px; }
+.avatar-wrap { width: 110px; height: 110px; margin: 0 auto 20px; position: relative; animation: avatarFloat 5s ease-in-out infinite; }
+@keyframes avatarFloat { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-8px); } }
+.avatar-ring-outer {
+  position: absolute; top: -10px; left: -10px; right: -10px; bottom: -10px; border-radius: 50%;
+  border: 2px solid transparent;
+  background: conic-gradient(var(--cyan), var(--purple), var(--pink), var(--cyan)) border-box;
+  -webkit-mask: linear-gradient(#fff 0 0) padding-box, linear-gradient(#fff 0 0);
+  mask: linear-gradient(#fff 0 0) padding-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor; mask-composite: exclude;
+  animation: ringSpin 4s linear infinite; filter: drop-shadow(0 0 8px var(--cyan));
+}
+@keyframes ringSpin { to { transform: rotate(360deg); } }
+.avatar-ring-inner { position: absolute; top: -5px; left: -5px; right: -5px; bottom: -5px; border-radius: 50%; border: 1px solid rgba(0,240,255,0.3); animation: ringPulse 2s ease-in-out infinite; }
+@keyframes ringPulse { 0%,100% { box-shadow: 0 0 8px rgba(0,240,255,0.3); } 50% { box-shadow: 0 0 20px rgba(0,240,255,0.6); } }
+.avatar { width: 100%; height: 100%; border-radius: 50%; object-fit: cover; position: relative; z-index: 2; border: 2px solid rgba(0,240,255,0.2); background: linear-gradient(135deg, rgba(0,240,255,0.2), rgba(192,0,255,0.2)); display: flex; align-items: center; justify-content: center; font-size: 40px; }
+.glitch-wrap { display: inline-block; position: relative; margin-bottom: 12px; }
+.glitch { font-size: 30px; font-weight: 800; letter-spacing: 2px; color: #fff; text-shadow: 0 0 10px var(--cyan), 0 0 30px var(--cyan), 0 0 60px var(--cyan); position: relative; }
+.glitch::before, .glitch::after { content: attr(data-text); position: absolute; top: 0; left: 0; width: 100%; height: 100%; }
+.glitch::before { color: var(--pink); animation: glitch1 2.5s infinite; clip-path: polygon(0 0, 100% 0, 100% 35%, 0 35%); text-shadow: 2px 0 var(--pink), -2px 0 var(--cyan); }
+.glitch::after { color: var(--cyan); animation: glitch2 2.5s infinite; clip-path: polygon(0 65%, 100% 65%, 100% 100%, 0 100%); text-shadow: -2px 0 var(--cyan), 2px 0 var(--pink); }
+@keyframes glitch1 { 0%,100% { transform: translate(0); } 92% { transform: translate(0); } 93% { transform: translate(-4px, 2px); } 94% { transform: translate(4px, -1px); } 95% { transform: translate(0); } }
+@keyframes glitch2 { 0%,100% { transform: translate(0); } 92% { transform: translate(0); } 93% { transform: translate(3px, -2px); } 94% { transform: translate(-3px, 1px); } 95% { transform: translate(0); } }
+.subtitle { font-size: 14px; color: var(--text-dim); line-height: 1.7; max-width: 400px; margin: 0 auto; }
+.divider { display: flex; align-items: center; gap: 12px; margin: 28px 0; }
+.divider-line { flex: 1; height: 1px; background: linear-gradient(90deg, transparent, rgba(0,240,255,0.4), transparent); }
+.divider-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--cyan); box-shadow: 0 0 8px var(--cyan); animation: pulse 2s ease-in-out infinite; }
+@keyframes pulse { 0%,100% { opacity: 0.4; transform: scale(0.8); } 50% { opacity: 1; transform: scale(1.4); } }
+.section { margin-bottom: 32px; }
+.section-header { display: flex; align-items: center; gap: 10px; margin-bottom: 18px; }
+.section-icon { width: 36px; height: 36px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 18px; border: 1px solid; }
+.section-icon.articles { border-color: var(--cyan); box-shadow: 0 0 10px rgba(0,240,255,0.3); background: rgba(0,240,255,0.08); }
+.section-icon.tools { border-color: var(--purple); box-shadow: 0 0 10px rgba(192,0,255,0.3); background: rgba(192,0,255,0.08); }
+.section-icon.resources { border-color: var(--pink); box-shadow: 0 0 10px rgba(255,0,128,0.3); background: rgba(255,0,128,0.08); }
+.section-title { font-size: 18px; font-weight: 700; color: #fff; }
+.section-count { font-size: 12px; color: var(--text-dim); background: rgba(255,255,255,0.06); border-radius: 10px; padding: 2px 10px; margin-left: auto; }
+.card { display: block; text-decoration: none; background: var(--card-bg); border: 1px solid rgba(255,255,255,0.08); border-radius: 14px; padding: 18px 20px; margin-bottom: 12px; transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1); position: relative; overflow: hidden; backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); }
+.card::after { content: ""; position: absolute; top: 0; left: -100%; width: 60%; height: 100%; background: linear-gradient(90deg, transparent, rgba(255,255,255,0.04), transparent); transition: left 0.7s ease; }
+.card:hover { border-color: var(--cyan); transform: translateY(-3px); box-shadow: 0 8px 32px rgba(0,240,255,0.15), inset 0 1px 0 rgba(255,255,255,0.06); }
+.card:hover::after { left: 120%; }
+.card-header { display: flex; align-items: center; gap: 10px; margin-bottom: 6px; }
+.card-icon { font-size: 20px; filter: drop-shadow(0 0 6px rgba(0,240,255,0.5)); }
+.card-name { font-size: 16px; font-weight: 600; color: #fff; }
+.card-desc { font-size: 13px; color: var(--text-dim); line-height: 1.6; margin-bottom: 10px; }
+.card-tags { display: flex; gap: 6px; flex-wrap: wrap; }
+.card-tag { font-size: 11px; color: var(--cyan); border: 1px solid rgba(0,240,255,0.3); border-radius: 5px; padding: 2px 8px; background: rgba(0,240,255,0.06); }
+.article-card { display: flex; align-items: center; text-decoration: none; padding: 14px 18px; margin-bottom: 10px; border-left: 2px solid rgba(0,240,255,0.3); transition: all 0.3s ease; border-radius: 0 10px 10px 0; background: rgba(255,255,255,0.02); }
+.article-card:hover { border-left-color: var(--cyan); background: rgba(0,240,255,0.05); }
+.article-info { flex: 1; }
+.article-title-text { font-size: 15px; color: #e0e0ff; font-weight: 500; margin-bottom: 3px; }
+.article-card:hover .article-title-text { color: var(--cyan); }
+.article-date { font-size: 12px; color: var(--text-dim); }
+.article-arrow { color: var(--text-dim); font-size: 14px; transition: all 0.3s; }
+.article-card:hover .article-arrow { color: var(--cyan); transform: translateX(4px); }
+.resource-card { background: var(--card-bg); border: 1px solid rgba(255,0,128,0.15); border-radius: 14px; padding: 20px; margin-bottom: 14px; backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); transition: all 0.3s ease; }
+.resource-card:hover { border-color: var(--pink); box-shadow: 0 8px 28px rgba(255,0,128,0.12); }
+.resource-name { font-size: 16px; font-weight: 600; color: #fff; margin-bottom: 8px; display: flex; align-items: center; gap: 8px; }
+.resource-detail { font-size: 13px; color: var(--text-dim); line-height: 1.6; margin-bottom: 14px; }
+.resource-btn { display: inline-flex; align-items: center; gap: 6px; font-size: 13px; font-weight: 600; color: #000; background: linear-gradient(135deg, var(--cyan), #00c8e0); text-decoration: none; border-radius: 8px; padding: 8px 20px; transition: all 0.3s ease; box-shadow: 0 0 16px rgba(0,240,255,0.3); }
+.resource-btn:hover { box-shadow: 0 0 28px rgba(0,240,255,0.5); transform: translateY(-1px); }
+.empty-state { text-align: center; padding: 24px; color: var(--text-dim); font-size: 13px; border: 1px dashed rgba(255,255,255,0.1); border-radius: 12px; }
+.footer { text-align: center; margin-top: 40px; padding-top: 24px; border-top: 1px solid rgba(255,255,255,0.06); }
+.footer-text { font-size: 12px; color: #505080; line-height: 1.6; }
+.admin-link { display: inline-block; margin-top: 12px; font-size: 12px; color: var(--text-dim); text-decoration: none; border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; padding: 4px 14px; transition: all 0.3s; }
+.admin-link:hover { color: var(--cyan); border-color: var(--cyan); }
+@media (max-width: 480px) {
+  .container { padding: 36px 16px 48px; }
+  .glitch { font-size: 24px; }
+  .card { padding: 14px 16px; }
+}
+@media (hover: none) and (pointer: coarse) { body { cursor: auto; } .cursor, .cursor-dot { display: none; } }
+</style>
+</head>
+<body>
+<div class="cursor" id="cursor"></div>
+<div class="cursor-dot" id="cursorDot"></div>
+<div class="neon-orb o1"></div>
+<div class="neon-orb o2"></div>
+<div class="neon-orb o3"></div>
+<canvas id="particleCanvas"></canvas>
+<div class="scanlines"></div>
+<div class="container">
+  <header class="header">
+    <div class="avatar-wrap">
+      <div class="avatar-ring-outer"></div>
+      <div class="avatar-ring-inner"></div>
+      <div class="avatar" id="avatarBox">🛠️</div>
+    </div>
+    <div class="glitch-wrap">
+      <h1 class="glitch" id="siteTitle" data-text="我的工具站">我的工具站</h1>
+    </div>
+    <p class="subtitle" id="siteSubtitle">好工具，随手分享。</p>
+  </header>
+  <div class="divider"><div class="divider-line"></div><div class="divider-dot"></div><div class="divider-dot"></div><div class="divider-dot"></div><div class="divider-line"></div></div>
+  <section class="section">
+    <div class="section-header"><div class="section-icon articles">📝</div><h2 class="section-title">精选文章</h2><span class="section-count" id="articleCount">0 篇</span></div>
+    <div id="articles"></div>
+  </section>
+  <section class="section">
+    <div class="section-header"><div class="section-icon tools">⚡</div><h2 class="section-title">工具推荐</h2><span class="section-count" id="toolCount">0 个</span></div>
+    <div id="tools"></div>
+  </section>
+  <section class="section">
+    <div class="section-header"><div class="section-icon resources">📦</div><h2 class="section-title">资源合集</h2><span class="section-count" id="resCount">0 个</span></div>
+    <div id="resources"></div>
+  </section>
+  <div class="divider"><div class="divider-line"></div><div class="divider-dot"></div><div class="divider-dot"></div><div class="divider-dot"></div><div class="divider-line"></div></div>
+  <footer class="footer">
+    <p class="footer-text" id="footerText">我的工具站 © 2025<br>好工具，随手分享</p>
+    <a href="admin.html" class="admin-link">管理后台</a>
+  </footer>
+</div>
+<script>
+var DEFAULT_DATA = {
+  "site": { "title": "我的工具站", "subtitle": "好工具，随手分享。AI 神器、效率软件、资源合集，都在这里。", "avatar": "" },
+  "articles": [
+    { "title": "ChatGPT 用了一年，这 5 个用法最值", "url": "https://mp.weixin.qq.com/", "date": "2025-07-10" },
+    { "title": "免费 AI 绘画工具推荐，出图比 Midjourney 还快", "url": "https://mp.weixin.qq.com/", "date": "2025-07-08" },
+    { "title": "用这 3 个工具，我把工作效率翻了一倍", "url": "https://mp.weixin.qq.com/", "date": "2025-07-05" }
+  ],
+  "tools": [
+    { "icon": "🤖", "name": "ChatGPT", "desc": "目前最稳的通用 AI 对话工具，写文案、改代码、问问题都能用。", "url": "https://chat.openai.com", "tags": ["对话", "必备"] },
+    { "icon": "🧠", "name": "Claude", "desc": "长文本和逻辑分析很强，写长文、读文档、做总结首选。", "url": "https://claude.ai", "tags": ["长文本", "写作"] },
+    { "icon": "🎨", "name": "Midjourney", "desc": "AI 绘画里的氛围感天花板，做封面、插图很出片。", "url": "https://www.midjourney.com", "tags": ["绘画", "设计"] },
+    { "icon": "⚡", "name": "Raycast", "desc": "Mac 启动器神器，快捷键呼出，搜索、剪贴板、快捷指令一手包办。", "url": "https://www.raycast.com", "tags": ["Mac", "效率"] },
+    { "icon": "📓", "name": "Notion", "desc": "笔记、知识库、项目管理一体化，工具收藏和文章草稿都在这。", "url": "https://www.notion.so", "tags": ["笔记", "管理"] }
+  ],
+  "resources": [
+    { "icon": "📦", "name": "AI 提示词包", "desc": "整理了 30+ 个 ChatGPT / Claude 常用提示词模板，涵盖写作、翻译、代码、脑暴场景，复制即用。", "url": "https://pan.quark.cn/" },
+    { "icon": "🖼️", "name": "封面素材包", "desc": "赛博朋克风封面底图 + 无版权图库合集，做头条图不用每次都从头找素材。", "url": "https://pan.quark.cn/" }
+  ]
+};
+function loadData(){
+  try { var s = localStorage.getItem("siteData"); if(s) return JSON.parse(s); } catch(e){}
+  return DEFAULT_DATA;
+}
+function escapeHtml(s){ return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;"); }
+(function(){
+  var data = loadData();
+  document.title = data.site.title;
+  document.getElementById("siteTitle").textContent = data.site.title;
+  document.getElementById("siteTitle").setAttribute("data-text", data.site.title);
+  document.getElementById("siteSubtitle").textContent = data.site.subtitle;
+  document.getElementById("footerText").innerHTML = escapeHtml(data.site.title) + " &copy; 2025<br>好工具，随手分享";
+  if(data.site.avatar){ document.getElementById("avatarBox").innerHTML = '<img src="'+escapeHtml(data.site.avatar)+'" style="width:100%;height:100%;border-radius:50%;object-fit:cover;">'; }
+
+  var aDiv = document.getElementById("articles"), aCount = document.getElementById("articleCount");
+  if(!data.articles || data.articles.length===0){ aDiv.innerHTML = '<div class="empty-state">文章在路上，敬请期待</div>'; aCount.textContent = "0 篇"; }
+  else { aCount.textContent = data.articles.length + " 篇"; aDiv.innerHTML = ""; data.articles.forEach(function(a){
+    aDiv.innerHTML += '<a href="'+escapeHtml(a.url)+'" class="article-card" target="_blank" rel="noopener"><div class="article-info"><div class="article-title-text">'+escapeHtml(a.title)+'</div><div class="article-date">'+escapeHtml(a.date)+'</div></div><span class="article-arrow">\u2192</span></a>';
+  }); }
+
+  var tDiv = document.getElementById("tools"), tCount = document.getElementById("toolCount");
+  if(!data.tools || data.tools.length===0){ tDiv.innerHTML = '<div class="empty-state">整理中，有好用的马上更新</div>'; tCount.textContent = "0 个"; }
+  else { tCount.textContent = data.tools.length + " 个"; tDiv.innerHTML = ""; data.tools.forEach(function(t){
+    var tags = ""; (t.tags||[]).forEach(function(tg){ tags += '<span class="card-tag">'+escapeHtml(tg)+'</span>'; });
+    tDiv.innerHTML += '<a href="'+escapeHtml(t.url)+'" class="card" target="_blank" rel="noopener"><div class="card-header"><span class="card-icon">'+escapeHtml(t.icon)+'</span><span class="card-name">'+escapeHtml(t.name)+'</span></div><div class="card-desc">'+escapeHtml(t.desc)+'</div><div class="card-tags">'+tags+'</div></a>';
+  }); }
+
+  var rDiv = document.getElementById("resources"), rCount = document.getElementById("resCount");
+  if(!data.resources || data.resources.length===0){ rDiv.innerHTML = '<div class="empty-state">资源包整理中，敬请期待</div>'; rCount.textContent = "0 个"; }
+  else { rCount.textContent = data.resources.length + " 个"; rDiv.innerHTML = ""; data.resources.forEach(function(r){
+    rDiv.innerHTML += '<div class="resource-card"><div class="resource-name"><span class="card-icon">'+escapeHtml(r.icon)+'</span>'+escapeHtml(r.name)+'</div><div class="resource-detail">'+escapeHtml(r.desc)+'</div><a href="'+escapeHtml(r.url)+'" class="resource-btn" target="_blank" rel="noopener">打开网盘 \u2192</a></div>';
+  }); }
+})();
+(function(){
+  var canvas = document.getElementById("particleCanvas"), ctx = canvas.getContext("2d"), particles = [], mouse = {x:-9999,y:-9999}, w, h, isMobile = window.innerWidth < 600;
+  var count = isMobile ? 35 : 80;
+  function resize(){ w = canvas.width = window.innerWidth; h = canvas.height = window.innerHeight; }
+  resize(); window.addEventListener("resize", resize);
+  var colors = ["rgba(0,240,255,", "rgba(192,0,255,", "rgba(255,0,128,"];
+  for(var i=0;i<count;i++){ particles.push({ x:Math.random()*w, y:Math.random()*h, vx:(Math.random()-0.5)*0.4, vy:(Math.random()-0.5)*0.4, r:Math.random()*1.5+0.5, c:colors[i%3] }); }
+  window.addEventListener("mousemove", function(e){ mouse.x=e.clientX; mouse.y=e.clientY; });
+  window.addEventListener("mouseout", function(){ mouse.x=-9999; mouse.y=-9999; });
+  function draw(){
+    ctx.clearRect(0,0,w,h);
+    for(var i=0;i<particles.length;i++){
+      var p = particles[i];
+      var dxm = p.x-mouse.x, dym = p.y-mouse.y, dm = Math.sqrt(dxm*dxm+dym*dym);
+      if(dm<150){ var f = (150-dm)/150*2; p.x += dxm/dm*f; p.y += dym/dm*f; }
+      p.x += p.vx; p.y += p.vy;
+      if(p.x<0||p.x>w) p.vx*=-1; if(p.y<0||p.y>h) p.vy*=-1;
+      ctx.beginPath(); ctx.arc(p.x,p.y,p.r,0,Math.PI*2); ctx.fillStyle = p.c+"0.5)"; ctx.fill();
+      for(var j=i+1;j<particles.length;j++){
+        var q = particles[j], dx=p.x-q.x, dy=p.y-q.y, dist=Math.sqrt(dx*dx+dy*dy);
+        if(dist<120){ ctx.beginPath(); ctx.moveTo(p.x,p.y); ctx.lineTo(q.x,q.y); ctx.strokeStyle = p.c+(0.15*(1-dist/120))+")"; ctx.lineWidth = 0.5; ctx.stroke(); }
+      }
+    }
+    requestAnimationFrame(draw);
+  }
+  draw();
+  var isTouch = window.matchMedia("(hover:none) and (pointer:coarse)").matches;
+  if(isTouch) return;
+  var cursor = document.getElementById("cursor"), cursorDot = document.getElementById("cursorDot");
+  document.addEventListener("mousemove", function(e){ cursor.style.left=e.clientX+"px"; cursor.style.top=e.clientY+"px"; cursorDot.style.left=e.clientX+"px"; cursorDot.style.top=e.clientY+"px"; });
+  document.addEventListener("mouseover", function(e){ if(e.target.closest("a")) cursor.classList.add("hover"); });
+  document.addEventListener("mouseout", function(e){ if(e.target.closest("a")) cursor.classList.remove("hover"); });
+})();
+</script>
+</body>
+</html>
