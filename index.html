@@ -121,6 +121,58 @@ body {
 .footer-text { font-size: 12px; color: #505080; line-height: 1.6; }
 .admin-link { display: inline-block; margin-top: 12px; font-size: 12px; color: var(--text-dim); text-decoration: none; border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; padding: 4px 14px; transition: all 0.3s; }
 .admin-link:hover { color: var(--cyan); border-color: var(--cyan); }
+.follow-card {
+  background: linear-gradient(135deg, rgba(0,240,255,0.06), rgba(192,0,255,0.06));
+  border: 1px solid rgba(0,240,255,0.2);
+  border-radius: 18px;
+  padding: 28px 24px;
+  text-align: center;
+  margin-bottom: 32px;
+  position: relative;
+  overflow: hidden;
+}
+.follow-card::before {
+  content: "";
+  position: absolute;
+  top: -50%; left: -50%;
+  width: 200%; height: 200%;
+  background: conic-gradient(transparent, rgba(0,240,255,0.08), transparent, rgba(192,0,255,0.08), transparent);
+  animation: followGlow 8s linear infinite;
+}
+@keyframes followGlow { to { transform: rotate(360deg); } }
+.follow-content { position: relative; z-index: 1; }
+.follow-title {
+  font-size: 20px; font-weight: 700;
+  color: #fff;
+  margin-bottom: 6px;
+  text-shadow: 0 0 20px rgba(0,240,255,0.4);
+}
+.follow-desc {
+  font-size: 13px; color: var(--text-dim);
+  margin-bottom: 18px;
+}
+.qr-wrapper {
+  width: 150px; height: 150px;
+  margin: 0 auto 14px;
+  border-radius: 14px;
+  padding: 6px;
+  background: linear-gradient(135deg, var(--cyan), var(--purple));
+  box-shadow: 0 0 24px rgba(0,240,255,0.3);
+}
+.qr-inner {
+  width: 100%; height: 100%;
+  border-radius: 10px;
+  background: #fff;
+  display: flex; align-items: center; justify-content: center;
+  overflow: hidden;
+}
+.qr-inner img {
+  width: 100%; height: 100%;
+  object-fit: contain;
+}
+.follow-hint {
+  font-size: 12px; color: var(--text-dim);
+}
 @media (max-width: 480px) {
   .container { padding: 36px 16px 48px; }
   .glitch { font-size: 24px; }
@@ -163,14 +215,29 @@ body {
     <div id="resources"></div>
   </section>
   <div class="divider"><div class="divider-line"></div><div class="divider-dot"></div><div class="divider-dot"></div><div class="divider-dot"></div><div class="divider-line"></div></div>
+
+  <!-- 公众号关注引导 -->
+  <div class="follow-card">
+    <div class="follow-content">
+      <div class="follow-title">关注「工具狂魔小明」</div>
+      <div class="follow-desc">刷到什么好用的，就写一篇</div>
+      <div class="qr-wrapper">
+        <div class="qr-inner">
+          <img src="qrcode.png" alt="公众号二维码">
+        </div>
+      </div>
+      <div class="follow-hint">微信扫码关注，不错过更新</div>
+    </div>
+  </div>
+
   <footer class="footer">
-    <p class="footer-text" id="footerText">我的工具站 © 2025<br>好工具，随手分享</p>
+    <p class="footer-text" id="footerText">工具狂魔小明 © 2025<br>好工具，随手分享</p>
     <a href="admin.html" class="admin-link">管理后台</a>
   </footer>
 </div>
 <script>
 var DEFAULT_DATA = {
-  "site": { "title": "我的工具站", "subtitle": "好工具，随手分享。AI 神器、效率软件、资源合集，都在这里。", "avatar": "" },
+  "site": { "title": "工具狂魔小明", "subtitle": "刷到好玩的工具就想分享出来。AI 神器、效率软件、资源合集，都在这里。", "avatar": "avatar.png" },
   "articles": [
     { "title": "ChatGPT 用了一年，这 5 个用法最值", "url": "https://mp.weixin.qq.com/", "date": "2025-07-10" },
     { "title": "免费 AI 绘画工具推荐，出图比 Midjourney 还快", "url": "https://mp.weixin.qq.com/", "date": "2025-07-08" },
