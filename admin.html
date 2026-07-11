@@ -312,13 +312,17 @@ async function login(){
       body:JSON.stringify({password:pw})
     });
     var j = await r.json();
-    if(r.ok){
+    if (r.ok){
       token = j.token;
       document.getElementById('loginView').style.display='none';
       document.getElementById('adminView').style.display='block';
       await loadAll();
     } else {
-      document.getElementById('loginError').textContent = '密码错误';
+      var errMsg = j.error || '登录失败';
+      if(j.hint_input_len !== undefined) {
+        errMsg += '（输入'+j.hint_input_len+'位，存储'+j.hint_stored_len+'位，前3位:'+j.hint_stored_prefix+'）';
+      }
+      document.getElementById('loginError').textContent = errMsg;
     }
   } catch(e){
     document.getElementById('loginError').textContent = '连接失败，请检查网络';
