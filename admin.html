@@ -3,299 +3,487 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>管理后台</title>
+<title>后台管理 - 工具狂魔小明</title>
 <style>
 :root {
-  --cyan: #00f0ff; --purple: #c000ff; --pink: #ff0080; --bg: #06060f;
-  --card-bg: rgba(10, 10, 30, 0.7); --text: #d0d0f0; --text-dim: #7070a0;
-  --input-bg: rgba(255,255,255,0.05); --danger: #ff4466;
+  --cyan: #00f0ff;
+  --purple: #c000ff;
+  --pink: #ff0080;
+  --bg: #0a0a1a;
+  --card: rgba(15,15,40,0.9);
+  --text: #d0d0f0;
+  --dim: #7070a0;
 }
 * { margin:0; padding:0; box-sizing:border-box; }
-body { font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Microsoft YaHei",sans-serif; background:var(--bg); color:var(--text); min-height:100vh; }
-.neon-orb { position:fixed; border-radius:50%; filter:blur(90px); opacity:0.25; z-index:0; pointer-events:none; }
-.neon-orb.o1 { width:400px; height:400px; background:var(--cyan); top:-100px; right:-80px; }
-.neon-orb.o2 { width:350px; height:350px; background:var(--purple); bottom:-80px; left:-100px; }
-.wrap { max-width:720px; margin:0 auto; padding:32px 20px 60px; position:relative; z-index:1; }
-.login-box { max-width:360px; margin:80px auto; background:var(--card-bg); border:1px solid rgba(0,240,255,0.2); border-radius:16px; padding:36px 28px; backdrop-filter:blur(12px); text-align:center; }
-.login-box h1 { font-size:22px; color:#fff; margin-bottom:8px; text-shadow:0 0 12px var(--cyan); }
-.login-box p { font-size:13px; color:var(--text-dim); margin-bottom:24px; }
-.login-box input { width:100%; background:var(--input-bg); border:1px solid rgba(255,255,255,0.1); border-radius:8px; padding:12px 14px; color:#fff; font-size:14px; margin-bottom:14px; outline:none; transition:border-color 0.3s; }
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Microsoft YaHei", sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+}
+/* 粒子背景 */
+#particleCanvas { position:fixed; top:0; left:0; width:100%; height:100%; z-index:0; pointer-events:none; }
+.container { max-width:800px; margin:0 auto; padding:32px 20px; position:relative; z-index:1; }
+.header { text-align:center; margin-bottom:32px; }
+.header h1 {
+  font-size:28px; font-weight:800;
+  background: linear-gradient(90deg, var(--cyan), var(--purple));
+  -webkit-background-clip:text; -webkit-text-fill-color:transparent;
+  margin-bottom:8px;
+}
+.header p { color:var(--dim); font-size:14px; }
+
+/* 登录 */
+.login-box {
+  max-width:400px; margin:80px auto;
+  background: var(--card);
+  border:1px solid rgba(0,240,255,0.2);
+  border-radius:16px; padding:40px;
+  text-align:center;
+}
+.login-box h2 { margin-bottom:24px; color:#fff; }
+.login-box input {
+  width:100%; padding:12px 16px;
+  background:rgba(255,255,255,0.05);
+  border:1px solid rgba(0,240,255,0.3);
+  border-radius:8px; color:#fff; font-size:15px;
+  margin-bottom:16px; outline:none;
+  transition:border-color 0.3s;
+}
 .login-box input:focus { border-color:var(--cyan); }
-.login-box button { width:100%; }
-h1.title { font-size:24px; color:#fff; text-align:center; margin-bottom:6px; text-shadow:0 0 14px var(--cyan); }
-.subtitle-bar { text-align:center; font-size:13px; color:var(--text-dim); margin-bottom:28px; }
-.section { background:var(--card-bg); border:1px solid rgba(255,255,255,0.08); border-radius:14px; padding:22px 20px; margin-bottom:20px; backdrop-filter:blur(12px); }
-.section h2 { font-size:16px; color:#fff; margin-bottom:16px; display:flex; align-items:center; gap:8px; }
-.field { margin-bottom:14px; }
-.field label { display:block; font-size:12px; color:var(--text-dim); margin-bottom:6px; }
-.field input, .field textarea { width:100%; background:var(--input-bg); border:1px solid rgba(255,255,255,0.1); border-radius:8px; padding:10px 12px; color:#fff; font-size:14px; outline:none; transition:border-color 0.3s; font-family:inherit; }
-.field input:focus, .field textarea:focus { border-color:var(--cyan); }
-.field textarea { resize:vertical; min-height:64px; }
-.row { display:flex; gap:12px; }
-.row .field { flex:1; }
-.btn { display:inline-block; background:linear-gradient(135deg,var(--cyan),#00c8e0); color:#000; border:none; border-radius:8px; padding:10px 20px; font-size:14px; font-weight:600; cursor:pointer; transition:all 0.3s; box-shadow:0 0 14px rgba(0,240,255,0.25); font-family:inherit; }
-.btn:hover { box-shadow:0 0 24px rgba(0,240,255,0.5); transform:translateY(-1px); }
-.btn.purple { background:linear-gradient(135deg,var(--purple),#9a00d0); color:#fff; box-shadow:0 0 14px rgba(192,0,255,0.25); }
-.btn.purple:hover { box-shadow:0 0 24px rgba(192,0,255,0.5); }
-.btn.ghost { background:transparent; color:var(--text); border:1px solid rgba(255,255,255,0.15); box-shadow:none; }
-.btn.ghost:hover { border-color:var(--cyan); color:var(--cyan); box-shadow:0 0 12px rgba(0,240,255,0.2); }
-.btn.danger { background:transparent; color:var(--danger); border:1px solid rgba(255,68,102,0.3); box-shadow:none; padding:6px 12px; font-size:12px; }
-.btn.danger:hover { background:rgba(255,68,102,0.1); border-color:var(--danger); }
-.btn.small { padding:6px 14px; font-size:12px; }
-.toolbar { display:flex; gap:10px; flex-wrap:wrap; justify-content:center; margin-bottom:24px; }
-.tabs { display:flex; gap:8px; margin-bottom:18px; flex-wrap:wrap; }
-.tab { padding:8px 18px; border-radius:8px; font-size:13px; cursor:pointer; border:1px solid rgba(255,255,255,0.1); background:var(--input-bg); color:var(--text-dim); transition:all 0.3s; }
-.tab.active { color:#fff; border-color:var(--cyan); background:rgba(0,240,255,0.1); box-shadow:0 0 12px rgba(0,240,255,0.2); }
-.item-list { }
-.item-card { background:var(--input-bg); border:1px solid rgba(255,255,255,0.08); border-radius:10px; padding:14px 16px; margin-bottom:10px; display:flex; align-items:center; gap:12px; }
-.item-card .ic-icon { font-size:22px; }
-.item-card .ic-info { flex:1; min-width:0; }
-.item-card .ic-name { font-size:14px; color:#fff; font-weight:500; margin-bottom:2px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
-.item-card .ic-desc { font-size:12px; color:var(--text-dim); overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
-.item-card .ic-actions { display:flex; gap:6px; flex-shrink:0; }
-.empty { text-align:center; padding:24px; color:var(--text-dim); font-size:13px; border:1px dashed rgba(255,255,255,0.1); border-radius:10px; }
-.toast { position:fixed; bottom:30px; left:50%; transform:translateX(-50%) translateY(100px); background:rgba(0,240,255,0.15); border:1px solid var(--cyan); color:var(--cyan); padding:10px 24px; border-radius:8px; font-size:13px; z-index:9999; transition:transform 0.4s; backdrop-filter:blur(8px); }
-.toast.show { transform:translateX(-50%) translateY(0); }
-.edit-form { background:rgba(0,240,255,0.04); border:1px solid rgba(0,240,255,0.2); border-radius:10px; padding:16px; margin-bottom:14px; }
-.edit-form .form-title { font-size:13px; color:var(--cyan); margin-bottom:12px; font-weight:600; }
-.form-actions { display:flex; gap:8px; margin-top:4px; }
-.tag-input-wrap { display:flex; flex-wrap:wrap; gap:6px; padding:8px; background:var(--input-bg); border:1px solid rgba(255,255,255,0.1); border-radius:8px; min-height:42px; }
-.tag-chip { background:rgba(0,240,255,0.12); border:1px solid rgba(0,240,255,0.3); color:var(--cyan); border-radius:5px; padding:3px 10px; font-size:12px; display:flex; align-items:center; gap:4px; }
-.tag-chip span { cursor:pointer; }
-.tag-input { background:transparent; border:none; color:#fff; font-size:13px; outline:none; flex:1; min-width:80px; }
-.footer-note { text-align:center; font-size:12px; color:#505080; margin-top:30px; line-height:1.7; }
-@media (max-width:520px){ .row{ flex-direction:column; gap:0; } .wrap{ padding:24px 14px 48px; } }
+.login-box button {
+  width:100%; padding:12px;
+  background:linear-gradient(135deg, var(--cyan), var(--purple));
+  border:none; border-radius:8px; color:#fff;
+  font-size:15px; font-weight:600; cursor:pointer;
+  transition:opacity 0.3s;
+}
+.login-box button:hover { opacity:0.9; }
+.login-error { color:var(--pink); font-size:13px; margin-top:8px; }
+
+/* 标签切换 */
+.tabs { display:flex; gap:8px; margin-bottom:24px; flex-wrap:wrap; }
+.tab {
+  padding:8px 20px; border-radius:8px; font-size:14px;
+  cursor:pointer; border:1px solid rgba(255,255,255,0.1);
+  background:rgba(255,255,255,0.03); color:var(--dim);
+  transition:all 0.3s;
+}
+.tab.active { border-color:var(--cyan); color:var(--cyan); background:rgba(0,240,255,0.08); }
+
+/* 面板 */
+.panel { display:none; }
+.panel.active { display:block; }
+
+/* 表单 */
+.form-group { margin-bottom:20px; }
+.form-group label {
+  display:block; font-size:13px; color:var(--cyan); margin-bottom:6px; font-weight:600;
+}
+.form-group input, .form-group textarea {
+  width:100%; padding:10px 14px;
+  background:rgba(255,255,255,0.05);
+  border:1px solid rgba(255,255,255,0.1);
+  border-radius:8px; color:#fff; font-size:14px;
+  outline:none; font-family:inherit;
+  transition:border-color 0.3s;
+}
+.form-group input:focus, .form-group textarea:focus { border-color:var(--cyan); }
+.form-group textarea { min-height:80px; resize:vertical; }
+.form-row { display:flex; gap:12px; }
+.form-row .form-group { flex:1; }
+
+/* 条目卡片 */
+.item-card {
+  background:var(--card); border:1px solid rgba(255,255,255,0.08);
+  border-radius:12px; padding:16px 20px; margin-bottom:12px;
+  display:flex; align-items:flex-start; gap:12px;
+  transition:all 0.3s;
+}
+.item-card:hover { border-color:var(--cyan); }
+.item-info { flex:1; }
+.item-title { font-size:15px; font-weight:600; color:#fff; margin-bottom:4px; }
+.item-desc { font-size:13px; color:var(--dim); }
+.item-tags { display:flex; gap:6px; margin-top:6px; flex-wrap:wrap; }
+.item-tag {
+  font-size:11px; color:var(--cyan); border:1px solid rgba(0,240,255,0.3);
+  border-radius:4px; padding:1px 6px;
+}
+.item-actions { display:flex; gap:8px; flex-direction:column; }
+.btn {
+  padding:6px 14px; border-radius:6px; font-size:12px;
+  cursor:pointer; border:none; font-weight:600;
+  transition:all 0.3s;
+}
+.btn-edit { background:rgba(0,240,255,0.15); color:var(--cyan); }
+.btn-edit:hover { background:rgba(0,240,255,0.25); }
+.btn-del { background:rgba(255,0,128,0.15); color:var(--pink); }
+.btn-del:hover { background:rgba(255,0,128,0.25); }
+.btn-add {
+  padding:10px 24px; background:linear-gradient(135deg, var(--cyan), var(--purple));
+  color:#fff; font-size:14px; border-radius:8px; margin-bottom:20px;
+}
+.btn-save {
+  padding:10px 24px; background:linear-gradient(135deg, #00e676, #00c853);
+  color:#fff; font-size:14px; border-radius:8px; border:none; cursor:pointer;
+}
+.btn-cancel {
+  padding:10px 24px; background:rgba(255,255,255,0.1);
+  color:var(--dim); font-size:14px; border-radius:8px; border:none; cursor:pointer;
+}
+
+/* 编辑弹窗 */
+.modal-overlay {
+  position:fixed; top:0; left:0; width:100%; height:100%;
+  background:rgba(0,0,0,0.7); z-index:100;
+  display:flex; align-items:center; justify-content:center;
+}
+.modal {
+  background:var(--card); border:1px solid rgba(0,240,255,0.3);
+  border-radius:16px; padding:32px; max-width:500px; width:90%;
+  max-height:80vh; overflow-y:auto;
+}
+.modal h3 { margin-bottom:20px; color:#fff; }
+.modal-actions { display:flex; gap:12px; margin-top:20px; justify-content:flex-end; }
+
+/* 站点设置 */
+.site-form { max-width:500px; }
+
+/* 顶部操作栏 */
+.topbar {
+  display:flex; justify-content:space-between; align-items:center;
+  margin-bottom:24px;
+}
+.topbar .user-info { font-size:13px; color:var(--dim); }
+.topbar .btn-logout {
+  padding:6px 14px; border-radius:6px; font-size:12px;
+  background:rgba(255,0,128,0.15); color:var(--pink);
+  border:none; cursor:pointer;
+}
+
+.status-msg {
+  padding:10px 16px; border-radius:8px; font-size:13px; margin-bottom:16px;
+}
+.status-msg.success { background:rgba(0,230,118,0.15); color:#00e676; border:1px solid rgba(0,230,118,0.3); }
+.status-msg.error { background:rgba(255,0,128,0.15); color:var(--pink); border:1px solid rgba(255,0,128,0.3); }
+
+/* 密码修改 */
+.password-section {
+  background:var(--card); border:1px solid rgba(255,255,255,0.08);
+  border-radius:12px; padding:20px; margin-top:32px;
+}
+.password-section h4 { margin-bottom:16px; color:#fff; }
+.password-row { display:flex; gap:12px; align-items:flex-end; }
+.password-row .form-group { flex:1; margin-bottom:0; }
+
+@media (max-width:600px) {
+  .container { padding:20px 12px; }
+  .form-row { flex-direction:column; }
+}
 </style>
 </head>
 <body>
-<div class="neon-orb o1"></div>
-<div class="neon-orb o2"></div>
-<div class="wrap" id="app" style="display:none;">
-  <h1 class="title">管理后台</h1>
-  <p class="subtitle-bar">在这里增删改内容，保存后前台自动更新</p>
-
-  <div class="toolbar">
-    <a href="index.html" class="btn ghost" target="_blank">预览前台</a>
-    <button class="btn ghost" onclick="exportData()">导出 data.json</button>
-    <button class="btn ghost" onclick="document.getElementById('importFile').click()">导入 data.json</button>
-    <input type="file" id="importFile" accept=".json" style="display:none" onchange="importData(event)">
-    <button class="btn danger" onclick="resetData()">重置为默认</button>
-    <button class="btn danger" onclick="logout()">退出</button>
+<canvas id="particleCanvas"></canvas>
+<div class="container">
+  <!-- 登录界面 -->
+  <div id="loginView" class="login-box">
+    <h2>后台管理</h2>
+    <input type="password" id="passwordInput" placeholder="请输入管理密码" onkeydown="if(event.key==='Enter')login()">
+    <button onclick="login()">登录</button>
+    <div class="login-error" id="loginError"></div>
   </div>
 
-  <div class="section">
-    <h2>⚙️ 站点设置</h2>
-    <div class="field"><label>站点标题</label><input id="setTitle" placeholder="我的工具站"></div>
-    <div class="field"><label>副标题 / 一句话简介</label><textarea id="setSubtitle" placeholder="好工具，随手分享"></textarea></div>
-    <div class="field"><label>头像图标（填一个 emoji，如 🛠️ 🤖 ⚡）</label><input id="setAvatar" placeholder="🛠️" maxlength="4"></div>
-    <button class="btn" onclick="saveSite()">保存站点设置</button>
-  </div>
-
-  <div class="section">
-    <h2>📚 内容管理</h2>
-    <div class="tabs">
-      <div class="tab active" data-tab="articles" onclick="switchTab('articles')">📝 精选文章</div>
-      <div class="tab" data-tab="tools" onclick="switchTab('tools')">⚡ 工具推荐</div>
-      <div class="tab" data-tab="resources" onclick="switchTab('resources')">📦 资源合集</div>
+  <!-- 管理界面 -->
+  <div id="adminView" style="display:none">
+    <div class="header">
+      <h1>工具狂魔小明</h1>
+      <p>后台管理系统</p>
     </div>
-    <div id="editForm"></div>
-    <div id="itemList" class="item-list"></div>
-  </div>
+    <div class="topbar">
+      <span class="user-info">已登录</span>
+      <button class="btn-logout" onclick="logout()">退出</button>
+    </div>
+    <div id="statusMsg"></div>
 
-  <p class="footer-note">提示：所有改动自动保存在浏览器本地。<br>部署到线上时，点「导出 data.json」下载文件替换即可。</p>
+    <div class="tabs">
+      <div class="tab active" onclick="switchTab('articles')">精选文章</div>
+      <div class="tab" onclick="switchTab('tools')">工具推荐</div>
+      <div class="tab" onclick="switchTab('resources')">资源合集</div>
+      <div class="tab" onclick="switchTab('site')">站点设置</div>
+      <div class="tab" onclick="switchTab('password')">修改密码</div>
+    </div>
+
+    <!-- 文章面板 -->
+    <div id="panel-articles" class="panel active">
+      <button class="btn btn-add" onclick="openModal('article')">添加文章</button>
+      <div id="articleList"></div>
+    </div>
+
+    <!-- 工具面板 -->
+    <div id="panel-tools" class="panel">
+      <button class="btn btn-add" onclick="openModal('tool')">添加工具</button>
+      <div id="toolList"></div>
+    </div>
+
+    <!-- 资源面板 -->
+    <div id="panel-resources" class="panel">
+      <button class="btn btn-add" onclick="openModal('resource')">添加资源包</button>
+      <div id="resourceList"></div>
+    </div>
+
+    <!-- 站点设置面板 -->
+    <div id="panel-site" class="panel">
+      <div class="site-form">
+        <div class="form-group">
+          <label>站点标题</label>
+          <input id="siteTitle" placeholder="工具狂魔小明">
+        </div>
+        <div class="form-group">
+          <label>副标题</label>
+          <textarea id="siteSubtitle" placeholder="刷到好玩的工具就想分享出来..."></textarea>
+        </div>
+        <button class="btn-save" onclick="saveSite()">保存设置</button>
+      </div>
+    </div>
+
+    <!-- 密码面板 -->
+    <div id="panel-password" class="panel">
+      <div class="password-section">
+        <h4>修改管理密码</h4>
+        <div class="password-row">
+          <div class="form-group">
+            <label>新密码</label>
+            <input type="password" id="newPassword" placeholder="输入新密码">
+          </div>
+          <button class="btn-save" onclick="changePassword()">修改</button>
+        </div>
+      </div>
+    </div>
+  </div>
 </div>
 
-<div class="wrap" id="login">
-  <div class="login-box">
-    <h1>管理后台</h1>
-    <p>请输入管理密码</p>
-    <input type="password" id="pwdInput" placeholder="密码（默认 admin123）" onkeydown="if(event.key==='Enter')doLogin()">
-    <button class="btn" onclick="doLogin()">进入后台</button>
-    <p style="margin-top:18px;font-size:11px;color:#505080;">默认密码 admin123，可在 admin.html 代码里修改</p>
-  </div>
+<!-- 编辑弹窗 -->
+<div id="modalOverlay" class="modal-overlay" style="display:none">
+  <div class="modal" id="modalContent"></div>
 </div>
-
-<div class="toast" id="toast"></div>
 
 <script>
-var ADMIN_PWD = "hang1991";
-var DEFAULT_DATA = {
-  "site": { "title": "我的工具站", "subtitle": "好工具，随手分享。AI 神器、效率软件、资源合集，都在这里。", "avatar": "🛠️" },
-  "articles": [], "tools": [], "resources": []
-};
-var data = null;
-var currentTab = "articles";
-var editingIndex = -1;
+var API = 'https://xiaoming-api.xiaoming-tools.workers.dev';
+var token = '';
+var currentTab = 'articles';
+var data = { articles:[], tools:[], resources:[], site:{} };
 
-function loadData(){
-  try { var s = localStorage.getItem("siteData"); if(s) return JSON.parse(s); } catch(e){}
-  return JSON.parse(JSON.stringify(DEFAULT_DATA));
-}
-function saveData(){ localStorage.setItem("siteData", JSON.stringify(data)); }
-function toast(msg){ var t=document.getElementById("toast"); t.textContent=msg; t.classList.add("show"); setTimeout(function(){ t.classList.remove("show"); },2000); }
+// 粒子背景
+(function(){
+  var c = document.getElementById('particleCanvas'), ctx = c.getContext('2d');
+  var ps=[], w,h;
+  function rs(){ w=c.width=window.innerWidth; h=c.height=window.innerHeight; }
+  rs(); window.addEventListener('resize',rs);
+  for(var i=0;i<50;i++) ps.push({x:Math.random()*w,y:Math.random()*h,vx:(Math.random()-0.5)*0.3,vy:(Math.random()-0.5)*0.3,r:Math.random()*1.5+0.5});
+  function dr(){
+    ctx.clearRect(0,0,w,h);
+    for(var i=0;i<ps.length;i++){
+      var p=ps[i]; p.x+=p.vx;p.y+=p.vy;
+      if(p.x<0||p.x>w)p.vx*=-1;if(p.y<0||p.y>h)p.vy*=-1;
+      ctx.beginPath();ctx.arc(p.x,p.y,p.r,0,Math.PI*2);
+      ctx.fillStyle='rgba(0,240,255,0.4)';ctx.fill();
+      for(var j=i+1;j<ps.length;j++){
+        var q=ps[j],dx=p.x-q.x,dy=p.y-q.y,dist=Math.sqrt(dx*dx+dy*dy);
+        if(dist<100){ctx.beginPath();ctx.moveTo(p.x,p.y);ctx.lineTo(q.x,q.y);ctx.strokeStyle='rgba(0,240,255,'+(0.1*(1-dist/100))+')';ctx.lineWidth=0.5;ctx.stroke();}
+      }
+    }
+    requestAnimationFrame(dr);
+  }
+  dr();
+})();
 
-function doLogin(){
-  var pwd = document.getElementById("pwdInput").value;
-  if(pwd === ADMIN_PWD){
-    sessionStorage.setItem("adminOk","1");
-    showApp();
-  } else { toast("密码错误"); }
+function showStatus(msg, type){
+  var el = document.getElementById('statusMsg');
+  el.innerHTML = '<div class="status-msg '+type+'">'+msg+'</div>';
+  setTimeout(function(){ el.innerHTML=''; }, 3000);
 }
-function logout(){ sessionStorage.removeItem("adminOk"); location.reload(); }
-function showApp(){
-  document.getElementById("login").style.display="none";
-  document.getElementById("app").style.display="block";
-  data = loadData();
-  document.getElementById("setTitle").value = data.site.title;
-  document.getElementById("setSubtitle").value = data.site.subtitle;
-  document.getElementById("setAvatar").value = data.site.avatar || "";
-  switchTab(currentTab);
-}
-if(sessionStorage.getItem("adminOk")==="1"){ showApp(); }
 
-function saveSite(){
-  data.site.title = document.getElementById("setTitle").value || "我的工具站";
-  data.site.subtitle = document.getElementById("setSubtitle").value || "";
-  data.site.avatar = document.getElementById("setAvatar").value || "🛠️";
-  saveData(); toast("站点设置已保存");
+async function login(){
+  var pw = document.getElementById('passwordInput').value;
+  if(!pw) return;
+  try {
+    var r = await fetch(API+'/api/login', {
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({password:pw})
+    });
+    var j = await r.json();
+    if(r.ok){
+      token = j.token;
+      document.getElementById('loginView').style.display='none';
+      document.getElementById('adminView').style.display='block';
+      await loadAll();
+    } else {
+      document.getElementById('loginError').textContent = '密码错误';
+    }
+  } catch(e){
+    document.getElementById('loginError').textContent = '连接失败，请检查网络';
+  }
 }
+
+function logout(){
+  token=''; data={articles:[],tools:[],resources:[],site:{}};
+  document.getElementById('loginView').style.display='block';
+  document.getElementById('adminView').style.display='none';
+}
+
+async function loadAll(){
+  try {
+    var r = await fetch(API+'/api/all');
+    data = await r.json();
+    renderAll();
+    // 填充站点设置
+    document.getElementById('siteTitle').value = data.site.title || '';
+    document.getElementById('siteSubtitle').value = data.site.subtitle || '';
+  } catch(e){ showStatus('加载数据失败','error'); }
+}
+
+function renderAll(){
+  renderList('articleList', data.articles||[], 'article');
+  renderList('toolList', data.tools||[], 'tool');
+  renderList('resourceList', data.resources||[], 'resource');
+}
+
+function renderList(listId, items, type){
+  var el = document.getElementById(listId);
+  if(items.length===0){
+    el.innerHTML = '<div style="text-align:center;padding:40px;color:var(--dim);">暂无内容，点击上方按钮添加</div>';
+    return;
+  }
+  var h = '';
+  items.forEach(function(item, idx){
+    if(type==='article'){
+      h += '<div class="item-card"><div class="item-info"><div class="item-title">'+esc(item.title)+'</div><div class="item-desc">'+esc(item.date)+'</div></div><div class="item-actions"><button class="btn btn-edit" onclick="openModal(\'article\','+idx+')">编辑</button><button class="btn btn-del" onclick="delItem(\'articles\','+idx+')">删除</button></div></div>';
+    } else if(type==='tool'){
+      var tags='';
+      (item.tags||[]).forEach(function(t){ tags+='<span class="item-tag">'+esc(t)+'</span>'; });
+      h += '<div class="item-card"><div class="item-info"><div class="item-title">'+esc(item.icon)+' '+esc(item.name)+'</div><div class="item-desc">'+esc(item.desc)+'</div><div class="item-tags">'+tags+'</div></div><div class="item-actions"><button class="btn btn-edit" onclick="openModal(\'tool\','+idx+')">编辑</button><button class="btn btn-del" onclick="delItem(\'tools\','+idx+')">删除</button></div></div>';
+    } else if(type==='resource'){
+      h += '<div class="item-card"><div class="item-info"><div class="item-title">'+esc(item.icon)+' '+esc(item.name)+'</div><div class="item-desc">'+esc(item.desc)+'</div></div><div class="item-actions"><button class="btn btn-edit" onclick="openModal(\'resource\','+idx+')">编辑</button><button class="btn btn-del" onclick="delItem(\'resources\','+idx+')">删除</button></div></div>';
+    }
+  });
+  el.innerHTML = h;
+}
+
+function esc(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
 
 function switchTab(tab){
-  currentTab = tab; editingIndex = -1;
-  document.querySelectorAll(".tab").forEach(function(t){ t.classList.toggle("active", t.dataset.tab===tab); });
-  renderForm(); renderList();
+  currentTab = tab;
+  document.querySelectorAll('.tab').forEach(function(t){ t.classList.remove('active'); });
+  event.target.classList.add('active');
+  document.querySelectorAll('.panel').forEach(function(p){ p.classList.remove('active'); });
+  document.getElementById('panel-'+tab).classList.add('active');
 }
 
-function renderForm(){
-  var box = document.getElementById("editForm");
-  if(currentTab==="articles"){
-    box.innerHTML = '<div class="edit-form"><div class="form-title">添加文章</div>'+
-      '<div class="field"><label>标题</label><input id="f_title" placeholder="文章标题"></div>'+
-      '<div class="row"><div class="field"><label>链接</label><input id="f_url" placeholder="https://..."></div>'+
-      '<div class="field"><label>日期</label><input id="f_date" type="date"></div></div>'+
-      '<div class="form-actions"><button class="btn small" onclick="saveItem()">添加</button></div></div>';
-  } else if(currentTab==="tools"){
-    box.innerHTML = '<div class="edit-form"><div class="form-title">添加工具</div>'+
-      '<div class="row"><div class="field" style="max-width:80px;"><label>图标</label><input id="f_icon" placeholder="🤖" maxlength="4"></div>'+
-      '<div class="field"><label>名称</label><input id="f_name" placeholder="工具名"></div></div>'+
-      '<div class="field"><label>描述</label><textarea id="f_desc" placeholder="一句话描述"></textarea></div>'+
-      '<div class="field"><label>链接</label><input id="f_url" placeholder="https://..."></div>'+
-      '<div class="field"><label>标签（回车添加）</label><div class="tag-input-wrap" id="tagWrap"><input class="tag-input" id="tagInput" placeholder="输入标签后回车"></div></div>'+
-      '<div class="form-actions"><button class="btn small" onclick="saveItem()">添加</button></div></div>';
-    setupTagInput();
-  } else {
-    box.innerHTML = '<div class="edit-form"><div class="form-title">添加资源</div>'+
-      '<div class="row"><div class="field" style="max-width:80px;"><label>图标</label><input id="f_icon" placeholder="📦" maxlength="4"></div>'+
-      '<div class="field"><label>名称</label><input id="f_name" placeholder="资源包名"></div></div>'+
-      '<div class="field"><label>描述</label><textarea id="f_desc" placeholder="里面有什么，适合谁用"></textarea></div>'+
-      '<div class="field"><label>链接</label><input id="f_url" placeholder="网盘链接"></div>'+
-      '<div class="form-actions"><button class="btn small" onclick="saveItem()">添加</button></div></div>';
+async function delItem(type, idx){
+  if(!confirm('确认删除？')) return;
+  data[type].splice(idx,1);
+  await saveData(type);
+}
+
+async function saveData(type){
+  try {
+    var r = await fetch(API+'/api/'+type, {
+      method:'PUT', headers:{'Content-Type':'application/json','Authorization':'Bearer '+token},
+      body:JSON.stringify(data[type])
+    });
+    if(r.ok){ showStatus('保存成功','success'); renderAll(); }
+    else { showStatus('保存失败','error'); }
+  } catch(e){ showStatus('网络错误','error'); }
+}
+
+async function saveSite(){
+  data.site.title = document.getElementById('siteTitle').value;
+  data.site.subtitle = document.getElementById('siteSubtitle').value;
+  try {
+    var r = await fetch(API+'/api/site', {
+      method:'PUT', headers:{'Content-Type':'application/json','Authorization':'Bearer '+token},
+      body:JSON.stringify(data.site)
+    });
+    if(r.ok) showStatus('站点设置已保存','success');
+    else showStatus('保存失败','error');
+  } catch(e){ showStatus('网络错误','error'); }
+}
+
+async function changePassword(){
+  var pw = document.getElementById('newPassword').value;
+  if(!pw){ showStatus('请输入新密码','error'); return; }
+  try {
+    var r = await fetch(API+'/api/password', {
+      method:'PUT', headers:{'Content-Type':'application/json','Authorization':'Bearer '+token},
+      body:JSON.stringify({password:pw})
+    });
+    if(r.ok){ showStatus('密码已修改','success'); document.getElementById('newPassword').value=''; token=pw; }
+    else showStatus('修改失败','error');
+  } catch(e){ showStatus('网络错误','error'); }
+}
+
+function openModal(type, idx){
+  var isEdit = idx !== undefined;
+  var item = isEdit ? data[type+'s'][idx] : {};
+  var title = isEdit ? '编辑' : '添加';
+  if(type==='article') title += '文章';
+  else if(type==='tool') title += '工具';
+  else title += '资源包';
+
+  var h = '<h3>'+title+'</h3>';
+  if(type==='article'){
+    h += '<div class="form-group"><label>文章标题</label><input id="mTitle" value="'+esc(item.title||'')+'"></div>';
+    h += '<div class="form-group"><label>文章链接</label><input id="mUrl" value="'+esc(item.url||'')+'"></div>';
+    h += '<div class="form-group"><label>日期</label><input id="mDate" value="'+esc(item.date||'')+'" placeholder="2025-07-10"></div>';
+  } else if(type==='tool'){
+    h += '<div class="form-group"><label>图标 Emoji</label><input id="mIcon" value="'+esc(item.icon||'')+'" placeholder="🤖"></div>';
+    h += '<div class="form-group"><label>工具名称</label><input id="mName" value="'+esc(item.name||'')+'"></div>';
+    h += '<div class="form-group"><label>描述</label><textarea id="mDesc">'+esc(item.desc||'')+'</textarea></div>';
+    h += '<div class="form-group"><label>链接</label><input id="mUrl" value="'+esc(item.url||'')+'"></div>';
+    h += '<div class="form-group"><label>标签（逗号分隔）</label><input id="mTags" value="'+esc((item.tags||[]).join(','))+'"></div>';
+  } else if(type==='resource'){
+    h += '<div class="form-group"><label>图标 Emoji</label><input id="mIcon" value="'+esc(item.icon||'')+'" placeholder="📦"></div>';
+    h += '<div class="form-group"><label>资源包名称</label><input id="mName" value="'+esc(item.name||'')+'"></div>';
+    h += '<div class="form-group"><label>描述</label><textarea id="mDesc">'+esc(item.desc||'')+'</textarea></div>';
+    h += '<div class="form-group"><label>网盘链接</label><input id="mUrl" value="'+esc(item.url||'')+'"></div>';
   }
+  h += '<div class="modal-actions"><button class="btn-cancel" onclick="closeModal()">取消</button><button class="btn-save" onclick="saveModal(\''+type+'\','+idx+')">保存</button></div>';
+
+  document.getElementById('modalContent').innerHTML = h;
+  document.getElementById('modalOverlay').style.display = 'flex';
 }
 
-var currentTags = [];
-function setupTagInput(){
-  currentTags = [];
-  var input = document.getElementById("tagInput");
-  input.addEventListener("keydown", function(e){
-    if(e.key==="Enter"){ e.preventDefault(); var v=input.value.trim(); if(v && currentTags.indexOf(v)<0){ currentTags.push(v); renderTags(); } input.value=""; }
-  });
+function closeModal(){
+  document.getElementById('modalOverlay').style.display = 'none';
 }
-function renderTags(){
-  var wrap = document.getElementById("tagWrap");
-  var chips = currentTags.map(function(t,i){ return '<span class="tag-chip">'+t+'<span onclick="removeTag('+i+')">×</span></span>'; }).join("");
-  wrap.innerHTML = chips + '<input class="tag-input" id="tagInput" placeholder="输入标签后回车">';
-  var input = document.getElementById("tagInput");
-  input.addEventListener("keydown", function(e){
-    if(e.key==="Enter"){ e.preventDefault(); var v=input.value.trim(); if(v && currentTags.indexOf(v)<0){ currentTags.push(v); renderTags(); } input.value=""; }
-  });
-  input.focus();
-}
-function removeTag(i){ currentTags.splice(i,1); renderTags(); }
 
-function saveItem(){
-  var isEdit = editingIndex >= 0;
-  if(currentTab==="articles"){
-    var title=document.getElementById("f_title").value.trim();
-    var url=document.getElementById("f_url").value.trim();
-    var date=document.getElementById("f_date").value;
-    if(!title){ toast("请填标题"); return; }
-    if(!data.articles) data.articles=[];
-    var obj={title:title,url:url,date:date};
-    if(isEdit) data.articles[editingIndex]=obj; else data.articles.unshift(obj);
-  } else if(currentTab==="tools"){
-    var name=document.getElementById("f_name").value.trim();
-    if(!name){ toast("请填名称"); return; }
-    if(!data.tools) data.tools=[];
-    var obj={icon:document.getElementById("f_icon").value.trim()||"🔧",name:name,desc:document.getElementById("f_desc").value.trim(),url:document.getElementById("f_url").value.trim(),tags:currentTags.slice()};
-    if(isEdit) data.tools[editingIndex]=obj; else data.tools.unshift(obj);
-  } else {
-    var rname=document.getElementById("f_name").value.trim();
-    if(!rname){ toast("请填名称"); return; }
-    if(!data.resources) data.resources=[];
-    var obj={icon:document.getElementById("f_icon").value.trim()||"📦",name:rname,desc:document.getElementById("f_desc").value.trim(),url:document.getElementById("f_url").value.trim()};
-    if(isEdit) data.resources[editingIndex]=obj; else data.resources.unshift(obj);
+function saveModal(type, idx){
+  var item = {};
+  if(type==='article'){
+    item.title = document.getElementById('mTitle').value;
+    item.url = document.getElementById('mUrl').value;
+    item.date = document.getElementById('mDate').value;
+  } else if(type==='tool'){
+    item.icon = document.getElementById('mIcon').value;
+    item.name = document.getElementById('mName').value;
+    item.desc = document.getElementById('mDesc').value;
+    item.url = document.getElementById('mUrl').value;
+    item.tags = document.getElementById('mTags').value.split(',').map(function(s){ return s.trim(); }).filter(Boolean);
+  } else if(type==='resource'){
+    item.icon = document.getElementById('mIcon').value;
+    item.name = document.getElementById('mName').value;
+    item.desc = document.getElementById('mDesc').value;
+    item.url = document.getElementById('mUrl').value;
   }
-  saveData(); toast(isEdit?"已修改":"已添加"); editingIndex=-1; renderForm(); renderList();
-}
-function editItem(i){
-  editingIndex = i;
-  var item = data[currentTab][i];
-  renderForm();
-  if(currentTab==="articles"){
-    document.getElementById("f_title").value=item.title||"";
-    document.getElementById("f_url").value=item.url||"";
-    document.getElementById("f_date").value=item.date||"";
-  } else if(currentTab==="tools"){
-    document.getElementById("f_icon").value=item.icon||"";
-    document.getElementById("f_name").value=item.name||"";
-    document.getElementById("f_desc").value=item.desc||"";
-    document.getElementById("f_url").value=item.url||"";
-    currentTags=(item.tags||[]).slice();
-    renderTags();
+  var key = type+'s';
+  if(idx===undefined){
+    data[key].push(item);
   } else {
-    document.getElementById("f_icon").value=item.icon||"";
-    document.getElementById("f_name").value=item.name||"";
-    document.getElementById("f_desc").value=item.desc||"";
-    document.getElementById("f_url").value=item.url||"";
+    data[key][idx] = item;
   }
-  var btn=document.querySelector(".form-actions button");
-  if(btn) btn.textContent="保存修改";
-  var ft=document.querySelector(".form-title");
-  if(ft) ft.textContent="编辑内容（第 "+(i+1)+" 条）";
-  document.getElementById("editForm").scrollIntoView({behavior:"smooth"});
+  closeModal();
+  saveData(key);
 }
-
-function renderList(){
-  var box = document.getElementById("itemList");
-  var list = data[currentTab] || [];
-  if(list.length===0){ box.innerHTML = '<div class="empty">还没有内容，用上方表单添加吧</div>'; return; }
-  var html = "";
-  list.forEach(function(item,i){
-    var name="", desc="";
-    if(currentTab==="articles"){ name=item.title; desc=item.date; }
-    else if(currentTab==="tools"){ name=(item.icon||"")+" "+item.name; desc=item.desc; }
-    else { name=(item.icon||"")+" "+item.name; desc=item.desc; }
-    html += '<div class="item-card"><div class="ic-info"><div class="ic-name">'+esc(name)+'</div><div class="ic-desc">'+esc(desc)+'</div></div><div class="ic-actions"><button class="btn small" onclick="editItem('+i+')">编辑</button><button class="btn danger" onclick="delItem('+i+')">删除</button></div></div>';
-  });
-  box.innerHTML = html;
-}
-function delItem(i){ if(!confirm("确定删除？")) return; data[currentTab].splice(i,1); saveData(); renderList(); toast("已删除"); }
-function esc(s){ return String(s==null?"":s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;"); }
-
-function exportData(){
-  var blob = new Blob([JSON.stringify(data,null,2)],{type:"application/json"});
-  var a = document.createElement("a"); a.href=URL.createObjectURL(blob); a.download="data.json"; a.click();
-  toast("已导出 data.json");
-}
-function importData(e){
-  var file = e.target.files[0]; if(!file) return;
-  var reader = new FileReader();
-  reader.onload = function(ev){ try{ data=JSON.parse(ev.target.result); saveData(); showApp(); toast("导入成功"); }catch(err){ toast("文件格式错误"); } };
-  reader.readAsText(file);
-  e.target.value="";
-}
-function resetData(){ if(!confirm("确定重置为默认数据？所有内容会清空")) return; data=JSON.parse(JSON.stringify(DEFAULT_DATA)); saveData(); showApp(); toast("已重置"); }
 </script>
 </body>
 </html>

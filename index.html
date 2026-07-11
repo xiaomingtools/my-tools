@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>我的工具站</title>
+<title>工具狂魔小明｜工具导航</title>
 <style>
 :root {
   --cyan: #00f0ff;
@@ -236,37 +236,16 @@ body {
   </footer>
 </div>
 <script>
-var DEFAULT_DATA = {
-  "site": { "title": "工具狂魔小明", "subtitle": "刷到好玩的工具就想分享出来。AI 神器、效率软件、资源合集，都在这里。", "avatar": "avatar.png" },
-  "articles": [
-    { "title": "ChatGPT 用了一年，这 5 个用法最值", "url": "https://mp.weixin.qq.com/", "date": "2025-07-10" },
-    { "title": "免费 AI 绘画工具推荐，出图比 Midjourney 还快", "url": "https://mp.weixin.qq.com/", "date": "2025-07-08" },
-    { "title": "用这 3 个工具，我把工作效率翻了一倍", "url": "https://mp.weixin.qq.com/", "date": "2025-07-05" }
-  ],
-  "tools": [
-    { "icon": "🤖", "name": "ChatGPT", "desc": "目前最稳的通用 AI 对话工具，写文案、改代码、问问题都能用。", "url": "https://chat.openai.com", "tags": ["对话", "必备"] },
-    { "icon": "🧠", "name": "Claude", "desc": "长文本和逻辑分析很强，写长文、读文档、做总结首选。", "url": "https://claude.ai", "tags": ["长文本", "写作"] },
-    { "icon": "🎨", "name": "Midjourney", "desc": "AI 绘画里的氛围感天花板，做封面、插图很出片。", "url": "https://www.midjourney.com", "tags": ["绘画", "设计"] },
-    { "icon": "⚡", "name": "Raycast", "desc": "Mac 启动器神器，快捷键呼出，搜索、剪贴板、快捷指令一手包办。", "url": "https://www.raycast.com", "tags": ["Mac", "效率"] },
-    { "icon": "📓", "name": "Notion", "desc": "笔记、知识库、项目管理一体化，工具收藏和文章草稿都在这。", "url": "https://www.notion.so", "tags": ["笔记", "管理"] }
-  ],
-  "resources": [
-    { "icon": "📦", "name": "AI 提示词包", "desc": "整理了 30+ 个 ChatGPT / Claude 常用提示词模板，涵盖写作、翻译、代码、脑暴场景，复制即用。", "url": "https://pan.quark.cn/" },
-    { "icon": "🖼️", "name": "封面素材包", "desc": "赛博朋克风封面底图 + 无版权图库合集，做头条图不用每次都从头找素材。", "url": "https://pan.quark.cn/" }
-  ]
-};
-function loadData(){
-  try { var s = localStorage.getItem("siteData"); if(s) return JSON.parse(s); } catch(e){}
-  return DEFAULT_DATA;
-}
+var API = 'https://xiaoming-api.xiaoming-tools.workers.dev';
 function escapeHtml(s){ return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;"); }
-(function(){
-  var data = loadData();
-  document.title = data.site.title;
-  document.getElementById("siteTitle").textContent = data.site.title;
-  document.getElementById("siteTitle").setAttribute("data-text", data.site.title);
-  document.getElementById("siteSubtitle").textContent = data.site.subtitle;
-  document.getElementById("footerText").innerHTML = escapeHtml(data.site.title) + " &copy; 2025<br>好工具，随手分享";
+
+// 渲染函数
+function renderPage(data){
+  document.title = data.site.title || '工具狂魔小明';
+  document.getElementById("siteTitle").textContent = data.site.title || '工具狂魔小明';
+  document.getElementById("siteTitle").setAttribute("data-text", data.site.title || '工具狂魔小明');
+  document.getElementById("siteSubtitle").textContent = data.site.subtitle || '';
+  document.getElementById("footerText").innerHTML = escapeHtml(data.site.title || '工具狂魔小明') + " &copy; 2025<br>好工具，随手分享";
   if(data.site.avatar){ document.getElementById("avatarBox").innerHTML = '<img src="'+escapeHtml(data.site.avatar)+'" style="width:100%;height:100%;border-radius:50%;object-fit:cover;">'; }
 
   var aDiv = document.getElementById("articles"), aCount = document.getElementById("articleCount");
@@ -287,6 +266,28 @@ function escapeHtml(s){ return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt
   else { rCount.textContent = data.resources.length + " 个"; rDiv.innerHTML = ""; data.resources.forEach(function(r){
     rDiv.innerHTML += '<div class="resource-card"><div class="resource-name"><span class="card-icon">'+escapeHtml(r.icon)+'</span>'+escapeHtml(r.name)+'</div><div class="resource-detail">'+escapeHtml(r.desc)+'</div><a href="'+escapeHtml(r.url)+'" class="resource-btn" target="_blank" rel="noopener">打开网盘 \u2192</a></div>';
   }); }
+}
+
+// 先从 API 加载，失败则用缓存
+(async function(){
+  try {
+    var r = await fetch(API+'/api/all');
+    if(r.ok){
+      var data = await r.json();
+      localStorage.setItem('cachedData', JSON.stringify(data));
+      renderPage(data);
+      return;
+    }
+  } catch(e){}
+
+  // fallback: localStorage 缓存
+  try {
+    var cached = localStorage.getItem('cachedData');
+    if(cached){ renderPage(JSON.parse(cached)); return; }
+  } catch(e){}
+
+  // 最终 fallback
+  renderPage({site:{title:'工具狂魔小明',subtitle:'刷到好玩的工具就想分享出来。AI 神器、效率软件、资源合集，都在这里。',avatar:'avatar.png'},articles:[],tools:[],resources:[]});
 })();
 (function(){
   var canvas = document.getElementById("particleCanvas"), ctx = canvas.getContext("2d"), particles = [], mouse = {x:-9999,y:-9999}, w, h, isMobile = window.innerWidth < 600;
