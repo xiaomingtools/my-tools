@@ -367,7 +367,8 @@ function renderList(listId, items, type){
       (item.tags||[]).forEach(function(t){ tags+='<span class="item-tag">'+esc(t)+'</span>'; });
       h += '<div class="item-card"><div class="item-info"><div class="item-title">'+esc(item.icon)+' '+esc(item.name)+'</div><div class="item-desc">'+esc(item.desc)+'</div><div class="item-tags">'+tags+'</div></div><div class="item-actions"><button class="btn btn-edit" onclick="openModal(\'tool\','+idx+')">编辑</button><button class="btn btn-del" onclick="delItem(\'tools\','+idx+')">删除</button></div></div>';
     } else if(type==='resource'){
-      h += '<div class="item-card"><div class="item-info"><div class="item-title">'+esc(item.icon)+' '+esc(item.name)+'</div><div class="item-desc">'+esc(item.desc)+'</div></div><div class="item-actions"><button class="btn btn-edit" onclick="openModal(\'resource\','+idx+')">编辑</button><button class="btn btn-del" onclick="delItem(\'resources\','+idx+')">删除</button></div></div>';
+      var rcat = item.category ? '<span class="item-tag">'+esc(item.category)+'</span>' : '';
+      h += '<div class="item-card"><div class="item-info"><div class="item-title">'+esc(item.icon)+' '+esc(item.name)+'</div><div class="item-desc">'+esc(item.desc)+'</div><div class="item-tags">'+rcat+'</div></div><div class="item-actions"><button class="btn btn-edit" onclick="openModal(\'resource\','+idx+')">编辑</button><button class="btn btn-del" onclick="delItem(\'resources\','+idx+')">删除</button></div></div>';
     }
   });
   el.innerHTML = h;
@@ -448,6 +449,7 @@ function openModal(type, idx){
   } else if(type==='resource'){
     h += '<div class="form-group"><label>图标 Emoji</label><input id="mIcon" value="'+esc(item.icon||'')+'" placeholder="📦"></div>';
     h += '<div class="form-group"><label>资源包名称</label><input id="mName" value="'+esc(item.name||'')+'"></div>';
+    h += '<div class="form-group"><label>分类</label><input id="mCategory" value="'+esc(item.category||'')+'" placeholder="如：AI 工具包 / 设计素材 / 效率软件"></div>';
     h += '<div class="form-group"><label>描述</label><textarea id="mDesc">'+esc(item.desc||'')+'</textarea></div>';
     h += '<div class="form-group"><label>网盘链接</label><input id="mUrl" value="'+esc(item.url||'')+'"></div>';
   }
@@ -476,6 +478,7 @@ function saveModal(type, idx){
   } else if(type==='resource'){
     item.icon = document.getElementById('mIcon').value;
     item.name = document.getElementById('mName').value;
+    item.category = document.getElementById('mCategory').value.trim();
     item.desc = document.getElementById('mDesc').value;
     item.url = document.getElementById('mUrl').value;
   }
