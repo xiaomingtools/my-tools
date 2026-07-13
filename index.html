@@ -301,8 +301,16 @@ function renderArticles(list, q, full){
   if(list.length===0){ aDiv.innerHTML='<div class="empty-state">没有匹配的文章</div>'; aCount.textContent="0 篇"; if(va) va.style.display="none"; return; }
   aCount.textContent = q ? (list.length+" 条") : (full+" 篇");
   var shown = q ? list : list.slice(0, PAGE_LIMIT);
-  aDiv.innerHTML=""; shown.forEach(function(a){
-    aDiv.innerHTML += '<a href="'+escapeHtml(a.url)+'" class="article-card" target="_blank" rel="noopener"><div class="article-info"><div class="article-title-text">'+escapeHtml(a.title)+'</div><div class="article-date">'+escapeHtml(a.date)+'</div></div><span class="article-arrow">\u2192</span></a>';
+  if(shown.length===0){ aDiv.innerHTML='<div class="empty-state">没有匹配的文章</div>'; if(va) va.style.display="none"; return; }
+  aDiv.innerHTML="";
+  var groups=[], map={};
+  shown.forEach(function(a){ var cat=a.category||"未分类"; if(!map[cat]){ map[cat]=[]; groups.push(cat); } map[cat].push(a); });
+  groups.forEach(function(cat){
+    var g='<div class="resource-group"><div class="resource-group-title" style="color:var(--cyan);text-shadow:0 0 8px rgba(0,240,255,0.4)">'+escapeHtml(cat)+'</div>';
+    map[cat].forEach(function(a){
+      g+='<a href="'+escapeHtml(a.url)+'" class="article-card" target="_blank" rel="noopener"><div class="article-info"><div class="article-title-text">'+escapeHtml(a.title)+'</div><div class="article-date">'+escapeHtml(a.date)+'</div></div><span class="article-arrow">\u2192</span></a>';
+    });
+    g+='</div>'; aDiv.innerHTML+=g;
   });
   if(va){ va.style.display = (SHOW_VIEW_ALL && !q && full>PAGE_LIMIT) ? "inline-block" : "none"; }
 }
@@ -313,9 +321,17 @@ function renderTools(list, q, full){
   if(list.length===0){ tDiv.innerHTML='<div class="empty-state">没有匹配的工具</div>'; tCount.textContent="0 个"; if(va) va.style.display="none"; return; }
   tCount.textContent = q ? (list.length+" 条") : (full+" 个");
   var shown = q ? list : list.slice(0, PAGE_LIMIT);
-  tDiv.innerHTML=""; shown.forEach(function(t){
-    var tags=""; (t.tags||[]).forEach(function(tg){ tags+='<span class="card-tag">'+escapeHtml(tg)+'</span>'; });
-    tDiv.innerHTML += '<a href="'+escapeHtml(t.url)+'" class="card" target="_blank" rel="noopener"><div class="card-header"><span class="card-icon">'+escapeHtml(t.icon)+'</span><span class="card-name">'+escapeHtml(t.name)+'</span></div><div class="card-desc">'+escapeHtml(t.desc)+'</div><div class="card-tags">'+tags+'</div></a>';
+  if(shown.length===0){ tDiv.innerHTML='<div class="empty-state">没有匹配的工具</div>'; if(va) va.style.display="none"; return; }
+  tDiv.innerHTML="";
+  var groups=[], map={};
+  shown.forEach(function(t){ var cat=t.category||"未分类"; if(!map[cat]){ map[cat]=[]; groups.push(cat); } map[cat].push(t); });
+  groups.forEach(function(cat){
+    var g='<div class="resource-group"><div class="resource-group-title" style="color:var(--purple);text-shadow:0 0 8px rgba(192,0,255,0.4)">'+escapeHtml(cat)+'</div>';
+    map[cat].forEach(function(t){
+      var tags=""; (t.tags||[]).forEach(function(tg){ tags+='<span class="card-tag">'+escapeHtml(tg)+'</span>'; });
+      g+='<a href="'+escapeHtml(t.url)+'" class="card" target="_blank" rel="noopener"><div class="card-header"><span class="card-icon">'+escapeHtml(t.icon)+'</span><span class="card-name">'+escapeHtml(t.name)+'</span></div><div class="card-desc">'+escapeHtml(t.desc)+'</div><div class="card-tags">'+tags+'</div></a>';
+    });
+    g+='</div>'; tDiv.innerHTML+=g;
   });
   if(va){ va.style.display = (SHOW_VIEW_ALL && !q && full>PAGE_LIMIT) ? "inline-block" : "none"; }
 }

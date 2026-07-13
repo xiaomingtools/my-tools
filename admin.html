@@ -115,6 +115,8 @@ body {
 .btn-edit:hover { background:rgba(0,240,255,0.25); }
 .btn-del { background:rgba(255,0,128,0.15); color:var(--pink); }
 .btn-del:hover { background:rgba(255,0,128,0.25); }
+.admin-group { margin-bottom:20px; }
+.admin-group-title { font-size:13px; font-weight:700; color:var(--purple); text-shadow:0 0 8px rgba(192,0,255,0.4); letter-spacing:1px; margin-bottom:10px; padding-left:12px; position:relative; border-left:3px solid var(--purple); padding-bottom:2px; }
 .btn-add {
   padding:10px 24px; background:linear-gradient(135deg, var(--cyan), var(--purple));
   color:#fff; font-size:14px; border-radius:8px; margin-bottom:20px; border:none; cursor:pointer;
@@ -421,18 +423,26 @@ function renderList(listId, items, type){
     el.innerHTML = '<div style="text-align:center;padding:40px;color:var(--dim);">暂无内容，点击上方按钮添加</div>';
     return;
   }
+  // 按分类分组
+  var groups=[], map={};
+  items.forEach(function(item){ var cat=item.category||"未分类"; if(!map[cat]){ map[cat]=[]; groups.push(cat); } map[cat].push(item); });
   var h = '';
-  items.forEach(function(item, idx){
-    if(type==='article'){
-      h += '<div class="item-card"><div class="item-info"><div class="item-title">'+esc(item.title)+'</div><div class="item-desc">'+esc(item.url)+' · '+esc(item.date)+'</div></div><div class="item-actions"><button class="btn btn-edit" onclick="openModal(\'article\','+idx+')">编辑</button><button class="btn btn-del" onclick="delItem(\'articles\','+idx+')">删除</button></div></div>';
-    } else if(type==='tool'){
-      var tags='';
-      (item.tags||[]).forEach(function(t){ tags+='<span class="item-tag">'+esc(t)+'</span>'; });
-      h += '<div class="item-card"><div class="item-info"><div class="item-title">'+esc(item.icon)+' '+esc(item.name)+'</div><div class="item-desc">'+esc(item.desc)+'</div><div class="item-tags">'+tags+'</div></div><div class="item-actions"><button class="btn btn-edit" onclick="openModal(\'tool\','+idx+')">编辑</button><button class="btn btn-del" onclick="delItem(\'tools\','+idx+')">删除</button></div></div>';
-    } else if(type==='resource'){
-      var rcat = item.category ? '<span class="item-tag">'+esc(item.category)+'</span>' : '';
-      h += '<div class="item-card"><div class="item-info"><div class="item-title">'+esc(item.icon)+' '+esc(item.name)+'</div><div class="item-desc">'+esc(item.desc)+'</div><div class="item-tags">'+rcat+'</div></div><div class="item-actions"><button class="btn btn-edit" onclick="openModal(\'resource\','+idx+')">编辑</button><button class="btn btn-del" onclick="delItem(\'resources\','+idx+')">删除</button></div></div>';
-    }
+  groups.forEach(function(cat){
+    h += '<div class="admin-group"><div class="admin-group-title">'+esc(cat)+'</div>';
+    map[cat].forEach(function(item, idx){
+      // idx 需要在原数组中的真实索引
+      var realIdx = items.indexOf(item);
+      if(type==='article'){
+        h += '<div class="item-card"><div class="item-info"><div class="item-title">'+esc(item.title)+'</div><div class="item-desc">'+esc(item.url)+' · '+esc(item.date)+'</div></div><div class="item-actions"><button class="btn btn-edit" onclick="openModal(\'article\','+realIdx+')">编辑</button><button class="btn btn-del" onclick="delItem(\'articles\','+realIdx+')">删除</button></div></div>';
+      } else if(type==='tool'){
+        var tags='';
+        (item.tags||[]).forEach(function(t){ tags+='<span class="item-tag">'+esc(t)+'</span>'; });
+        h += '<div class="item-card"><div class="item-info"><div class="item-title">'+esc(item.icon)+' '+esc(item.name)+'</div><div class="item-desc">'+esc(item.desc)+'</div><div class="item-tags">'+tags+'</div></div><div class="item-actions"><button class="btn btn-edit" onclick="openModal(\'tool\','+realIdx+')">编辑</button><button class="btn btn-del" onclick="delItem(\'tools\','+realIdx+')">删除</button></div></div>';
+      } else if(type==='resource'){
+        h += '<div class="item-card"><div class="item-info"><div class="item-title">'+esc(item.icon)+' '+esc(item.name)+'</div><div class="item-desc">'+esc(item.desc)+'</div></div><div class="item-actions"><button class="btn btn-edit" onclick="openModal(\'resource\','+realIdx+')">编辑</button><button class="btn btn-del" onclick="delItem(\'resources\','+realIdx+')">删除</button></div></div>';
+      }
+    });
+    h += '</div>';
   });
   el.innerHTML = h;
 }
@@ -475,11 +485,13 @@ function openModal(type, idx){
   var h = '<h3>'+title+'</h3>';
   if(type==='article'){
     h += '<div class="form-group"><label>文章标题</label><input id="mTitle" value="'+esc(item.title||'')+'"></div>';
+    h += '<div class="form-group"><label>分类（决定首页里的分组，如 AI 教程 / 效率提升）</label><input id="mCategory" value="'+esc(item.category||'')+'"></div>';
     h += '<div class="form-group"><label>文章链接（你的公众号文章地址）</label><input id="mUrl" value="'+esc(item.url||'')+'"></div>';
     h += '<div class="form-group"><label>日期</label><input id="mDate" value="'+esc(item.date||'')+'" placeholder="2025-07-10"></div>';
   } else if(type==='tool'){
     h += '<div class="form-group"><label>图标 Emoji</label><input id="mIcon" value="'+esc(item.icon||'')+'" placeholder="🤖"></div>';
     h += '<div class="form-group"><label>工具名称</label><input id="mName" value="'+esc(item.name||'')+'"></div>';
+    h += '<div class="form-group"><label>分类（决定首页里的分组，如 AI 工具 / 设计创作 / 效率软件）</label><input id="mCategory" value="'+esc(item.category||'')+'"></div>';
     h += '<div class="form-group"><label>描述</label><textarea id="mDesc">'+esc(item.desc||'')+'</textarea></div>';
     h += '<div class="form-group"><label>链接</label><input id="mUrl" value="'+esc(item.url||'')+'"></div>';
     h += '<div class="form-group"><label>标签（逗号分隔）</label><input id="mTags" value="'+esc((item.tags||[]).join(','))+'"></div>';
@@ -504,11 +516,13 @@ function saveModal(type, idx){
   var item = {};
   if(type==='article'){
     item.title = document.getElementById('mTitle').value.trim();
+    item.category = document.getElementById('mCategory').value.trim();
     item.url = document.getElementById('mUrl').value.trim();
     item.date = document.getElementById('mDate').value.trim();
   } else if(type==='tool'){
     item.icon = document.getElementById('mIcon').value.trim();
     item.name = document.getElementById('mName').value.trim();
+    item.category = document.getElementById('mCategory').value.trim();
     item.desc = document.getElementById('mDesc').value.trim();
     item.url = document.getElementById('mUrl').value.trim();
     item.tags = document.getElementById('mTags').value.split(',').map(function(s){ return s.trim(); }).filter(Boolean);
