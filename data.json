@@ -259,6 +259,90 @@
         "归属地",
         "查询"
       ]
+    },
+    {
+      "icon": "⏰",
+      "name": "世界时钟工具",
+      "category": "效率软件",
+      "desc": "多国时区时间一眼看全",
+      "url": "https://www.toolbox365.cn/tools/world-clock/",
+      "tags": [
+        "时钟",
+        "时区",
+        "时间"
+      ]
+    },
+    {
+      "icon": "🎂",
+      "name": "年龄计算器",
+      "category": "查询工具",
+      "desc": "算精确到天的真实年龄",
+      "url": "https://www.toolnb.com/tools/nianling.html",
+      "tags": [
+        "年龄",
+        "时间",
+        "计算"
+      ]
+    },
+    {
+      "icon": "⏱️",
+      "name": "番茄钟工具",
+      "category": "效率软件",
+      "desc": "专注计时，干活不容易走神",
+      "url": "https://www.67tool.com/work/tomato",
+      "tags": [
+        "番茄钟",
+        "计时",
+        "专注"
+      ]
+    },
+    {
+      "icon": "📦",
+      "name": "快递查询工具",
+      "category": "查询工具",
+      "desc": "输入单号自动识别物流状态",
+      "url": "https://www.dute.org/kuaidi",
+      "tags": [
+        "快递",
+        "物流",
+        "查询"
+      ]
+    },
+    {
+      "icon": "♻️",
+      "name": "垃圾分类查询",
+      "category": "健康生活",
+      "desc": "查垃圾属于哪种分类，别再扔错",
+      "url": "https://www.toolbox365.cn/tools/garbage-sort/",
+      "tags": [
+        "垃圾",
+        "分类",
+        "生活"
+      ]
+    },
+    {
+      "icon": "🔤",
+      "name": "汉字转拼音工具",
+      "category": "文本处理",
+      "desc": "中文转拼音，支持多音字识别",
+      "url": "https://www.dute.org/pinyin",
+      "tags": [
+        "拼音",
+        "中文",
+        "转换"
+      ]
+    },
+    {
+      "icon": "🀄",
+      "name": "简繁转换工具",
+      "category": "文本处理",
+      "desc": "简体繁体中文互转，两岸三地通用",
+      "url": "https://www.toolbox365.cn/tools/zh-convert/",
+      "tags": [
+        "简繁",
+        "中文",
+        "转换"
+      ]
     }
   ],
   "resources": [
