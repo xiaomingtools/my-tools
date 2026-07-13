@@ -21,7 +21,6 @@ body {
   color: var(--text);
   min-height: 100vh;
 }
-/* 粒子背景 */
 #particleCanvas { position:fixed; top:0; left:0; width:100%; height:100%; z-index:0; pointer-events:none; }
 .container { max-width:800px; margin:0 auto; padding:32px 20px; position:relative; z-index:1; }
 .header { text-align:center; margin-bottom:32px; }
@@ -33,21 +32,22 @@ body {
 }
 .header p { color:var(--dim); font-size:14px; }
 
-/* 登录 */
+/* 连接配置 */
 .login-box {
-  max-width:400px; margin:80px auto;
+  max-width:420px; margin:60px auto;
   background: var(--card);
   border:1px solid rgba(0,240,255,0.2);
-  border-radius:16px; padding:40px;
-  text-align:center;
+  border-radius:16px; padding:36px;
 }
-.login-box h2 { margin-bottom:24px; color:#fff; }
+.login-box h2 { margin-bottom:8px; color:#fff; text-align:center; }
+.login-box .tip { color:var(--dim); font-size:12px; line-height:1.7; margin-bottom:18px; }
+.login-box .tip a { color:var(--cyan); }
 .login-box input {
   width:100%; padding:12px 16px;
   background:rgba(255,255,255,0.05);
   border:1px solid rgba(0,240,255,0.3);
   border-radius:8px; color:#fff; font-size:15px;
-  margin-bottom:16px; outline:none;
+  margin-bottom:14px; outline:none;
   transition:border-color 0.3s;
 }
 .login-box input:focus { border-color:var(--cyan); }
@@ -59,7 +59,7 @@ body {
   transition:opacity 0.3s;
 }
 .login-box button:hover { opacity:0.9; }
-.login-error { color:var(--pink); font-size:13px; margin-top:8px; }
+.login-error { color:var(--pink); font-size:13px; margin-top:10px; text-align:center; }
 
 /* 标签切换 */
 .tabs { display:flex; gap:8px; margin-bottom:24px; flex-wrap:wrap; }
@@ -71,11 +71,9 @@ body {
 }
 .tab.active { border-color:var(--cyan); color:var(--cyan); background:rgba(0,240,255,0.08); }
 
-/* 面板 */
 .panel { display:none; }
 .panel.active { display:block; }
 
-/* 表单 */
 .form-group { margin-bottom:20px; }
 .form-group label {
   display:block; font-size:13px; color:var(--cyan); margin-bottom:6px; font-weight:600;
@@ -93,7 +91,6 @@ body {
 .form-row { display:flex; gap:12px; }
 .form-row .form-group { flex:1; }
 
-/* 条目卡片 */
 .item-card {
   background:var(--card); border:1px solid rgba(255,255,255,0.08);
   border-radius:12px; padding:16px 20px; margin-bottom:12px;
@@ -103,7 +100,7 @@ body {
 .item-card:hover { border-color:var(--cyan); }
 .item-info { flex:1; }
 .item-title { font-size:15px; font-weight:600; color:#fff; margin-bottom:4px; }
-.item-desc { font-size:13px; color:var(--dim); }
+.item-desc { font-size:13px; color:var(--dim); word-break:break-all; }
 .item-tags { display:flex; gap:6px; margin-top:6px; flex-wrap:wrap; }
 .item-tag {
   font-size:11px; color:var(--cyan); border:1px solid rgba(0,240,255,0.3);
@@ -113,7 +110,7 @@ body {
 .btn {
   padding:6px 14px; border-radius:6px; font-size:12px;
   cursor:pointer; border:none; font-weight:600;
-  transition:all 0.3s;
+  transition:all 0.3s; white-space:nowrap;
 }
 .btn-edit { background:rgba(0,240,255,0.15); color:var(--cyan); }
 .btn-edit:hover { background:rgba(0,240,255,0.25); }
@@ -121,7 +118,7 @@ body {
 .btn-del:hover { background:rgba(255,0,128,0.25); }
 .btn-add {
   padding:10px 24px; background:linear-gradient(135deg, var(--cyan), var(--purple));
-  color:#fff; font-size:14px; border-radius:8px; margin-bottom:20px;
+  color:#fff; font-size:14px; border-radius:8px; margin-bottom:20px; border:none; cursor:pointer;
 }
 .btn-save {
   padding:10px 24px; background:linear-gradient(135deg, #00e676, #00c853);
@@ -132,7 +129,6 @@ body {
   color:var(--dim); font-size:14px; border-radius:8px; border:none; cursor:pointer;
 }
 
-/* 编辑弹窗 */
 .modal-overlay {
   position:fixed; top:0; left:0; width:100%; height:100%;
   background:rgba(0,0,0,0.7); z-index:100;
@@ -146,18 +142,17 @@ body {
 .modal h3 { margin-bottom:20px; color:#fff; }
 .modal-actions { display:flex; gap:12px; margin-top:20px; justify-content:flex-end; }
 
-/* 站点设置 */
 .site-form { max-width:500px; }
 
-/* 顶部操作栏 */
 .topbar {
   display:flex; justify-content:space-between; align-items:center;
-  margin-bottom:24px;
+  margin-bottom:24px; flex-wrap:wrap; gap:10px;
 }
-.topbar .user-info { font-size:13px; color:var(--dim); }
-.topbar .btn-logout {
+.topbar .left { font-size:13px; color:var(--dim); }
+.topbar .right { display:flex; gap:10px; }
+.topbar .btn-reconfig {
   padding:6px 14px; border-radius:6px; font-size:12px;
-  background:rgba(255,0,128,0.15); color:var(--pink);
+  background:rgba(255,255,255,0.1); color:var(--dim);
   border:none; cursor:pointer;
 }
 
@@ -166,15 +161,6 @@ body {
 }
 .status-msg.success { background:rgba(0,230,118,0.15); color:#00e676; border:1px solid rgba(0,230,118,0.3); }
 .status-msg.error { background:rgba(255,0,128,0.15); color:var(--pink); border:1px solid rgba(255,0,128,0.3); }
-
-/* 密码修改 */
-.password-section {
-  background:var(--card); border:1px solid rgba(255,255,255,0.08);
-  border-radius:12px; padding:20px; margin-top:32px;
-}
-.password-section h4 { margin-bottom:16px; color:#fff; }
-.password-row { display:flex; gap:12px; align-items:flex-end; }
-.password-row .form-group { flex:1; margin-bottom:0; }
 
 @media (max-width:600px) {
   .container { padding:20px 12px; }
@@ -185,12 +171,22 @@ body {
 <body>
 <canvas id="particleCanvas"></canvas>
 <div class="container">
-  <!-- 登录界面 -->
-  <div id="loginView" class="login-box">
-    <h2>后台管理</h2>
-    <input type="password" id="passwordInput" placeholder="请输入管理密码" onkeydown="if(event.key==='Enter')login()">
-    <button onclick="login()">登录</button>
-    <div class="login-error" id="loginError"></div>
+
+  <!-- 连接配置界面 -->
+  <div id="connectView" class="login-box">
+    <h2>连接 GitHub</h2>
+    <div class="tip">
+      填一次即可，之后自动记住。需要一个有仓库写权限的 GitHub Token。<br>
+      生成地址：github.com → 右上角头像 → Settings → Developer settings → Personal access tokens → 勾选 repo 权限 → 生成并复制。<br>
+      Token 只存在你浏览器本地，不上传任何服务器。
+    </div>
+    <input id="cfgOwner" placeholder="GitHub 用户名，如 xiaomingtools">
+    <input id="cfgRepo" placeholder="仓库名，如 my-tools">
+    <input id="cfgBranch" placeholder="分支，如 main" value="main">
+    <input id="cfgPath" placeholder="数据文件路径，如 data.json" value="data.json">
+    <input id="cfgToken" type="password" placeholder="粘贴 GitHub Token">
+    <button onclick="connect()">连接并加载数据</button>
+    <div class="login-error" id="connectError"></div>
   </div>
 
   <!-- 管理界面 -->
@@ -200,38 +196,36 @@ body {
       <p>后台管理系统</p>
     </div>
     <div class="topbar">
-      <span class="user-info">已登录</span>
-      <button class="btn-logout" onclick="logout()">退出</button>
+      <span class="left" id="connInfo"></span>
+      <span class="right">
+        <button class="btn-reconfig" onclick="reconfig()">重新配置</button>
+        <button class="btn-save" onclick="saveAll()">保存到 GitHub</button>
+      </span>
     </div>
     <div id="statusMsg"></div>
 
     <div class="tabs">
-      <div class="tab active" onclick="switchTab('articles')">精选文章</div>
-      <div class="tab" onclick="switchTab('tools')">工具推荐</div>
-      <div class="tab" onclick="switchTab('resources')">资源合集</div>
-      <div class="tab" onclick="switchTab('site')">站点设置</div>
-      <div class="tab" onclick="switchTab('password')">修改密码</div>
+      <div class="tab active" onclick="switchTab('articles', this)">精选文章</div>
+      <div class="tab" onclick="switchTab('tools', this)">工具推荐</div>
+      <div class="tab" onclick="switchTab('resources', this)">资源合集</div>
+      <div class="tab" onclick="switchTab('site', this)">站点设置</div>
     </div>
 
-    <!-- 文章面板 -->
     <div id="panel-articles" class="panel active">
       <button class="btn btn-add" onclick="openModal('article')">添加文章</button>
       <div id="articleList"></div>
     </div>
 
-    <!-- 工具面板 -->
     <div id="panel-tools" class="panel">
       <button class="btn btn-add" onclick="openModal('tool')">添加工具</button>
       <div id="toolList"></div>
     </div>
 
-    <!-- 资源面板 -->
     <div id="panel-resources" class="panel">
       <button class="btn btn-add" onclick="openModal('resource')">添加资源包</button>
       <div id="resourceList"></div>
     </div>
 
-    <!-- 站点设置面板 -->
     <div id="panel-site" class="panel">
       <div class="site-form">
         <div class="form-group">
@@ -242,36 +236,24 @@ body {
           <label>副标题</label>
           <textarea id="siteSubtitle" placeholder="刷到好玩的工具就想分享出来..."></textarea>
         </div>
-        <button class="btn-save" onclick="saveSite()">保存设置</button>
-      </div>
-    </div>
-
-    <!-- 密码面板 -->
-    <div id="panel-password" class="panel">
-      <div class="password-section">
-        <h4>修改管理密码</h4>
-        <div class="password-row">
-          <div class="form-group">
-            <label>新密码</label>
-            <input type="password" id="newPassword" placeholder="输入新密码">
-          </div>
-          <button class="btn-save" onclick="changePassword()">修改</button>
+        <div class="form-group">
+          <label>头像文件名（已在仓库里的图片，如 avatar.png）</label>
+          <input id="siteAvatar" placeholder="avatar.png">
         </div>
+        <button class="btn-save" onclick="updateSite()">更新到内存（记得点顶部保存到 GitHub）</button>
       </div>
     </div>
   </div>
 </div>
 
-<!-- 编辑弹窗 -->
 <div id="modalOverlay" class="modal-overlay" style="display:none">
   <div class="modal" id="modalContent"></div>
 </div>
 
 <script>
-var API = 'https://xiaoming-api.xiaoming-tools.workers.dev';
-var token = '';
-var currentTab = 'articles';
-var data = { articles:[], tools:[], resources:[], site:{} };
+var cfg = {};
+var data = { site:{}, articles:[], tools:[], resources:[] };
+var fileSha = '';
 
 // 粒子背景
 (function(){
@@ -300,50 +282,94 @@ var data = { articles:[], tools:[], resources:[], site:{} };
 function showStatus(msg, type){
   var el = document.getElementById('statusMsg');
   el.innerHTML = '<div class="status-msg '+type+'">'+msg+'</div>';
-  setTimeout(function(){ el.innerHTML=''; }, 3000);
+  setTimeout(function(){ el.innerHTML=''; }, 4000);
 }
 
-async function login(){
-  var pw = document.getElementById('passwordInput').value;
-  if(!pw) return;
+function esc(s){ return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+
+function apiBase(){
+  return 'https://api.github.com/repos/'+encodeURIComponent(cfg.owner)+'/'+encodeURIComponent(cfg.repo)+'/contents/'+encodeURIComponent(cfg.path);
+}
+
+function b64encode(str){
+  return btoa(unescape(encodeURIComponent(str)));
+}
+function b64decode(b64){
+  return decodeURIComponent(escape(atob(b64.replace(/\s/g,''))));
+}
+
+// 读取已保存配置并回填
+(function(){
+  try { var s = localStorage.getItem('td_cfg'); if(s) cfg = JSON.parse(s); } catch(e){}
+  if(cfg.owner){
+    document.getElementById('cfgOwner').value = cfg.owner||'';
+    document.getElementById('cfgRepo').value = cfg.repo||'';
+    document.getElementById('cfgBranch').value = cfg.branch||'main';
+    document.getElementById('cfgPath').value = cfg.path||'data.json';
+  }
+})();
+
+async function connect(){
+  cfg.owner = document.getElementById('cfgOwner').value.trim();
+  cfg.repo = document.getElementById('cfgRepo').value.trim();
+  cfg.branch = document.getElementById('cfgBranch').value.trim()||'main';
+  cfg.path = document.getElementById('cfgPath').value.trim()||'data.json';
+  cfg.token = document.getElementById('cfgToken').value.trim();
+  var err = document.getElementById('connectError');
+  err.textContent = '';
+  if(!cfg.owner || !cfg.repo || !cfg.token){
+    err.textContent = '请填完用户名、仓库名、Token';
+    return;
+  }
+  localStorage.setItem('td_cfg', JSON.stringify(cfg));
   try {
-    var r = await fetch(API+'/api/login', {
-      method:'POST', headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({password:pw})
+    var r = await fetch(apiBase()+'?ref='+encodeURIComponent(cfg.branch), {
+      headers:{ 'Authorization':'Bearer '+cfg.token, 'Accept':'application/vnd.github+json', 'X-GitHub-Api-Version':'2022-11-28' }
     });
+    if(r.status===401){ err.textContent='Token 无效或无仓库权限'; return; }
+    if(r.status===404){ err.textContent='找不到文件，确认仓库名/分支/路径是否正确'; return; }
+    if(!r.ok){ err.textContent='加载失败：HTTP '+r.status; return; }
     var j = await r.json();
-    if (r.ok){
-      token = j.token;
-      document.getElementById('loginView').style.display='none';
-      document.getElementById('adminView').style.display='block';
-      await loadAll();
-    } else {
-      var errMsg = j.error || '登录失败';
-      if(j.hint_input_len !== undefined) {
-        errMsg += '（输入'+j.hint_input_len+'位，存储'+j.hint_stored_len+'位，前3位:'+j.hint_stored_prefix+'）';
-      }
-      document.getElementById('loginError').textContent = errMsg;
-    }
+    data = JSON.parse(b64decode(j.content));
+    if(!data.site) data.site={};
+    if(!data.articles) data.articles=[];
+    if(!data.tools) data.tools=[];
+    if(!data.resources) data.resources=[];
+    fileSha = j.sha;
+    document.getElementById('connectView').style.display='none';
+    document.getElementById('adminView').style.display='block';
+    document.getElementById('connInfo').textContent = cfg.owner+'/'+cfg.repo+' @ '+cfg.branch;
+    renderAll();
+    fillSite();
+    showStatus('数据已加载','success');
   } catch(e){
-    document.getElementById('loginError').textContent = '连接失败，请检查网络';
+    err.textContent = '连接失败：'+(e && e.message ? e.message : e);
   }
 }
 
-function logout(){
-  token=''; data={articles:[],tools:[],resources:[],site:{}};
-  document.getElementById('loginView').style.display='block';
+function reconfig(){
   document.getElementById('adminView').style.display='none';
+  document.getElementById('connectView').style.display='block';
+  document.getElementById('cfgToken').value='';
 }
 
-async function loadAll(){
+async function saveAll(){
+  var payload = { site:data.site, articles:data.articles, tools:data.tools, resources:data.resources };
+  var json = JSON.stringify(payload, null, 2);
   try {
-    var r = await fetch(API+'/api/all');
-    data = await r.json();
-    renderAll();
-    // 填充站点设置
-    document.getElementById('siteTitle').value = data.site.title || '';
-    document.getElementById('siteSubtitle').value = data.site.subtitle || '';
-  } catch(e){ showStatus('加载数据失败','error'); }
+    var r = await fetch(apiBase(), {
+      method:'PUT',
+      headers:{ 'Authorization':'Bearer '+cfg.token, 'Content-Type':'application/json', 'Accept':'application/vnd.github+json', 'X-GitHub-Api-Version':'2022-11-28' },
+      body: JSON.stringify({ message:'更新站点数据（后台修改）', content:b64encode(json), sha:fileSha, branch:cfg.branch })
+    });
+    if(r.status===401){ showStatus('Token 无效，点右上角重新配置','error'); return; }
+    if(!r.ok){ showStatus('保存失败：HTTP '+r.status,'error'); return; }
+    var j = await r.json();
+    fileSha = j.content.sha;
+    showStatus('已保存到 GitHub，等 1~2 分钟网站自动更新','success');
+  } catch(e){
+    showStatus('保存出错：'+(e && e.message ? e.message : e),'error');
+  }
 }
 
 function renderAll(){
@@ -361,7 +387,7 @@ function renderList(listId, items, type){
   var h = '';
   items.forEach(function(item, idx){
     if(type==='article'){
-      h += '<div class="item-card"><div class="item-info"><div class="item-title">'+esc(item.title)+'</div><div class="item-desc">'+esc(item.date)+'</div></div><div class="item-actions"><button class="btn btn-edit" onclick="openModal(\'article\','+idx+')">编辑</button><button class="btn btn-del" onclick="delItem(\'articles\','+idx+')">删除</button></div></div>';
+      h += '<div class="item-card"><div class="item-info"><div class="item-title">'+esc(item.title)+'</div><div class="item-desc">'+esc(item.url)+' · '+esc(item.date)+'</div></div><div class="item-actions"><button class="btn btn-edit" onclick="openModal(\'article\','+idx+')">编辑</button><button class="btn btn-del" onclick="delItem(\'articles\','+idx+')">删除</button></div></div>';
     } else if(type==='tool'){
       var tags='';
       (item.tags||[]).forEach(function(t){ tags+='<span class="item-tag">'+esc(t)+'</span>'; });
@@ -374,57 +400,31 @@ function renderList(listId, items, type){
   el.innerHTML = h;
 }
 
-function esc(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
-
-function switchTab(tab){
-  currentTab = tab;
+function switchTab(tab, el){
   document.querySelectorAll('.tab').forEach(function(t){ t.classList.remove('active'); });
-  event.target.classList.add('active');
+  el.classList.add('active');
   document.querySelectorAll('.panel').forEach(function(p){ p.classList.remove('active'); });
   document.getElementById('panel-'+tab).classList.add('active');
 }
 
-async function delItem(type, idx){
+function delItem(type, idx){
   if(!confirm('确认删除？')) return;
   data[type].splice(idx,1);
-  await saveData(type);
+  renderAll();
+  showStatus('已删除，记得点顶部保存到 GitHub','success');
 }
 
-async function saveData(type){
-  try {
-    var r = await fetch(API+'/api/'+type, {
-      method:'PUT', headers:{'Content-Type':'application/json','Authorization':'Bearer '+token},
-      body:JSON.stringify(data[type])
-    });
-    if(r.ok){ showStatus('保存成功','success'); renderAll(); }
-    else { showStatus('保存失败','error'); }
-  } catch(e){ showStatus('网络错误','error'); }
+function fillSite(){
+  document.getElementById('siteTitle').value = data.site.title || '';
+  document.getElementById('siteSubtitle').value = data.site.subtitle || '';
+  document.getElementById('siteAvatar').value = data.site.avatar || '';
 }
 
-async function saveSite(){
+function updateSite(){
   data.site.title = document.getElementById('siteTitle').value;
   data.site.subtitle = document.getElementById('siteSubtitle').value;
-  try {
-    var r = await fetch(API+'/api/site', {
-      method:'PUT', headers:{'Content-Type':'application/json','Authorization':'Bearer '+token},
-      body:JSON.stringify(data.site)
-    });
-    if(r.ok) showStatus('站点设置已保存','success');
-    else showStatus('保存失败','error');
-  } catch(e){ showStatus('网络错误','error'); }
-}
-
-async function changePassword(){
-  var pw = document.getElementById('newPassword').value;
-  if(!pw){ showStatus('请输入新密码','error'); return; }
-  try {
-    var r = await fetch(API+'/api/password', {
-      method:'PUT', headers:{'Content-Type':'application/json','Authorization':'Bearer '+token},
-      body:JSON.stringify({password:pw})
-    });
-    if(r.ok){ showStatus('密码已修改','success'); document.getElementById('newPassword').value=''; token=pw; }
-    else showStatus('修改失败','error');
-  } catch(e){ showStatus('网络错误','error'); }
+  data.site.avatar = document.getElementById('siteAvatar').value.trim() || 'avatar.png';
+  showStatus('站点信息已更新到内存，记得点顶部保存到 GitHub','success');
 }
 
 function openModal(type, idx){
@@ -438,7 +438,7 @@ function openModal(type, idx){
   var h = '<h3>'+title+'</h3>';
   if(type==='article'){
     h += '<div class="form-group"><label>文章标题</label><input id="mTitle" value="'+esc(item.title||'')+'"></div>';
-    h += '<div class="form-group"><label>文章链接</label><input id="mUrl" value="'+esc(item.url||'')+'"></div>';
+    h += '<div class="form-group"><label>文章链接（你的公众号文章地址）</label><input id="mUrl" value="'+esc(item.url||'')+'"></div>';
     h += '<div class="form-group"><label>日期</label><input id="mDate" value="'+esc(item.date||'')+'" placeholder="2025-07-10"></div>';
   } else if(type==='tool'){
     h += '<div class="form-group"><label>图标 Emoji</label><input id="mIcon" value="'+esc(item.icon||'')+'" placeholder="🤖"></div>';
@@ -449,9 +449,9 @@ function openModal(type, idx){
   } else if(type==='resource'){
     h += '<div class="form-group"><label>图标 Emoji</label><input id="mIcon" value="'+esc(item.icon||'')+'" placeholder="📦"></div>';
     h += '<div class="form-group"><label>资源包名称</label><input id="mName" value="'+esc(item.name||'')+'"></div>';
-    h += '<div class="form-group"><label>分类</label><input id="mCategory" value="'+esc(item.category||'')+'" placeholder="如：AI 工具包 / 设计素材 / 效率软件"></div>';
+    h += '<div class="form-group"><label>分类（决定首页里的分组，如 AI 工具包 / 设计素材 / 效率软件）</label><input id="mCategory" value="'+esc(item.category||'')+'"></div>';
     h += '<div class="form-group"><label>描述</label><textarea id="mDesc">'+esc(item.desc||'')+'</textarea></div>';
-    h += '<div class="form-group"><label>网盘链接</label><input id="mUrl" value="'+esc(item.url||'')+'"></div>';
+    h += '<div class="form-group"><label>网盘链接（你的夸克网盘分享链接，形如 https://pan.quark.cn/s/xxxx）</label><input id="mUrl" value="'+esc(item.url||'')+'"></div>';
   }
   h += '<div class="modal-actions"><button class="btn-cancel" onclick="closeModal()">取消</button><button class="btn-save" onclick="saveModal(\''+type+'\','+idx+')">保存</button></div>';
 
@@ -466,21 +466,21 @@ function closeModal(){
 function saveModal(type, idx){
   var item = {};
   if(type==='article'){
-    item.title = document.getElementById('mTitle').value;
-    item.url = document.getElementById('mUrl').value;
-    item.date = document.getElementById('mDate').value;
+    item.title = document.getElementById('mTitle').value.trim();
+    item.url = document.getElementById('mUrl').value.trim();
+    item.date = document.getElementById('mDate').value.trim();
   } else if(type==='tool'){
-    item.icon = document.getElementById('mIcon').value;
-    item.name = document.getElementById('mName').value;
-    item.desc = document.getElementById('mDesc').value;
-    item.url = document.getElementById('mUrl').value;
+    item.icon = document.getElementById('mIcon').value.trim();
+    item.name = document.getElementById('mName').value.trim();
+    item.desc = document.getElementById('mDesc').value.trim();
+    item.url = document.getElementById('mUrl').value.trim();
     item.tags = document.getElementById('mTags').value.split(',').map(function(s){ return s.trim(); }).filter(Boolean);
   } else if(type==='resource'){
-    item.icon = document.getElementById('mIcon').value;
-    item.name = document.getElementById('mName').value;
+    item.icon = document.getElementById('mIcon').value.trim();
+    item.name = document.getElementById('mName').value.trim();
     item.category = document.getElementById('mCategory').value.trim();
-    item.desc = document.getElementById('mDesc').value;
-    item.url = document.getElementById('mUrl').value;
+    item.desc = document.getElementById('mDesc').value.trim();
+    item.url = document.getElementById('mUrl').value.trim();
   }
   var key = type+'s';
   if(idx===undefined){
@@ -489,7 +489,8 @@ function saveModal(type, idx){
     data[key][idx] = item;
   }
   closeModal();
-  saveData(key);
+  renderAll();
+  showStatus('已更新到内存，记得点顶部保存到 GitHub','success');
 }
 </script>
 </body>
