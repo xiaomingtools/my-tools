@@ -427,6 +427,30 @@
         "格式化",
         "开发"
       ]
+    },
+    {
+      "icon": "⏳",
+      "name": "时间戳转换工具",
+      "category": "开发工具",
+      "desc": "时间戳和日期时间互相转换",
+      "url": "https://www.toolnb.com/tools/getTimestamp.html",
+      "tags": [
+        "时间戳",
+        "转换",
+        "开发"
+      ]
+    },
+    {
+      "icon": "📱",
+      "name": "一个木函 App",
+      "category": "效率软件",
+      "desc": "120+ 工具集成在一个 App 里，尺子清理换算啥都有",
+      "url": "https://woodbox.app/",
+      "tags": [
+        "App",
+        "手机",
+        "多功能"
+      ]
     }
   ],
   "resources": [
