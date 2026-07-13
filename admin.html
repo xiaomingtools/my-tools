@@ -205,6 +205,9 @@ body {
       <span class="left" id="connInfo"></span>
       <span class="right">
         <button class="btn-portable" onclick="copyPortableLink()">复制随身链接</button>
+        <button class="btn-portable" onclick="exportBackup()">导出备份</button>
+        <button class="btn-portable" onclick="document.getElementById('importFile').click()">导入备份</button>
+        <input type="file" id="importFile" accept=".json,.txt,application/json,text/plain" style="display:none" onchange="importBackup(this)">
         <button class="btn-reconfig" onclick="reconfig()">重新配置</button>
         <button class="btn-save" onclick="saveAll()">保存到 GitHub</button>
       </span>
@@ -261,6 +264,7 @@ body {
 var cfg = {};
 var data = { site:{}, articles:[], tools:[], resources:[] };
 var fileSha = '';
+var isNewFile = false;
 
 // 粒子背景
 (function(){
@@ -346,7 +350,19 @@ async function connect(){
       headers:{ 'Authorization':'Bearer '+cfg.token, 'Accept':'application/vnd.github+json', 'X-GitHub-Api-Version':'2022-11-28' }
     });
     if(r.status===401){ err.textContent='Token 无效或无仓库权限'; return; }
-    if(r.status===404){ err.textContent='找不到文件，确认仓库名/分支/路径是否正确'; return; }
+    if(r.status===404){
+      // 首次部署：仓库里还没有 data.json，自动初始化空骨架，保存时再创建文件
+      isNewFile = true;
+      fileSha = '';
+      data = { site:{ title:'工具狂魔小明', subtitle:'刷到好玩的工具就想分享出来。AI 神器、效率软件、资源合集，都在这里。', avatar:'avatar.png' }, articles:[], tools:[], resources:[] };
+      document.getElementById('connectView').style.display='none';
+      document.getElementById('adminView').style.display='block';
+      document.getElementById('connInfo').textContent = cfg.owner+'/'+cfg.repo+' @ '+cfg.branch;
+      renderAll();
+      fillSite();
+      showStatus('首次使用：先填好内容，再点「保存到 GitHub」创建数据文件','success');
+      return;
+    }
     if(!r.ok){ err.textContent='加载失败：HTTP '+r.status; return; }
     var j = await r.json();
     data = JSON.parse(b64decode(j.content));
@@ -354,6 +370,7 @@ async function connect(){
     if(!data.articles) data.articles=[];
     if(!data.tools) data.tools=[];
     if(!data.resources) data.resources=[];
+    isNewFile = false;
     fileSha = j.sha;
     document.getElementById('connectView').style.display='none';
     document.getElementById('adminView').style.display='block';
@@ -392,19 +409,73 @@ function fallbackCopy(link){
   document.body.removeChild(t);
 }
 
+// 导出备份：把当前后台数据下载成一个 json 文件，随时能再导回
+function exportBackup(){
+  var payload = { site:data.site, articles:data.articles, tools:data.tools, resources:data.resources };
+  var json = JSON.stringify(payload, null, 2);
+  var blob = new Blob([json], { type:'application/json' });
+  var url = URL.createObjectURL(blob);
+  var a = document.createElement('a');
+  var d = new Date();
+  var pad = function(n){ return (n<10?'0':'')+n; };
+  var stamp = ''+d.getFullYear()+pad(d.getMonth()+1)+pad(d.getDate())+pad(d.getHours())+pad(d.getMinutes());
+  a.href = url; a.download = '工具站数据备份-'+stamp+'.json';
+  document.body.appendChild(a); a.click(); document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+  showStatus('已导出备份文件，存到电脑或微信，关键时刻能导入恢复','success');
+}
+
+// 导入备份：选一个之前导出的 json，载入内存（不会立刻覆盖，点保存才写回 GitHub）
+function importBackup(input){
+  var f = input.files && input.files[0];
+  if(!f){ return; }
+  var reader = new FileReader();
+  reader.onload = function(){
+    try {
+      var obj = JSON.parse(reader.result);
+      if(!obj || typeof obj!=='object'){ showStatus('文件格式不对，不是有效备份','error'); return; }
+      data = {
+        site: obj.site || { title:'工具狂魔小明', subtitle:'', avatar:'avatar.png' },
+        articles: Array.isArray(obj.articles)?obj.articles:[],
+        tools: Array.isArray(obj.tools)?obj.tools:[],
+        resources: Array.isArray(obj.resources)?obj.resources:[]
+      };
+      renderAll(); fillSite();
+      showStatus('已导入到内存，检查一下没问题就点「保存到 GitHub」','success');
+    } catch(e){
+      showStatus('导入失败：'+ (e && e.message ? e.message : e),'error');
+    }
+  };
+  reader.readAsText(f);
+  input.value = '';
+}
+
 async function saveAll(){
   var payload = { site:data.site, articles:data.articles, tools:data.tools, resources:data.resources };
   var json = JSON.stringify(payload, null, 2);
   try {
+    var body = { message:'更新站点数据（后台修改）', content:b64encode(json), branch:cfg.branch };
+    // 仅在更新已有文件时带 sha；首次创建文件不带，否则 GitHub 会报 409
+    if(fileSha) body.sha = fileSha;
     var r = await fetch(apiBase(), {
       method:'PUT',
       headers:{ 'Authorization':'Bearer '+cfg.token, 'Content-Type':'application/json', 'Accept':'application/vnd.github+json', 'X-GitHub-Api-Version':'2022-11-28' },
-      body: JSON.stringify({ message:'更新站点数据（后台修改）', content:b64encode(json), sha:fileSha, branch:cfg.branch })
+      body: JSON.stringify(body)
     });
     if(r.status===401){ showStatus('Token 无效，点右上角重新配置','error'); return; }
+    if(r.status===409){
+      // 远程文件已被改动（版本锁冲突）：重新拉取最新数据，提示用户再保存一次
+      showStatus('数据在别处被改过，已自动刷新，请检查后再点一次保存','error');
+      try {
+        var rr = await fetch(apiBase()+'?ref='+encodeURIComponent(cfg.branch), { headers:{ 'Authorization':'Bearer '+cfg.token, 'Accept':'application/vnd.github+json', 'X-GitHub-Api-Version':'2022-11-28' } });
+        if(rr.ok){ var jj = await rr.json(); data = JSON.parse(b64decode(jj.content)); fileSha = jj.sha; isNewFile=false; renderAll(); fillSite(); }
+      } catch(e){}
+      return;
+    }
     if(!r.ok){ showStatus('保存失败：HTTP '+r.status,'error'); return; }
     var j = await r.json();
     fileSha = j.content.sha;
+    isNewFile = false;
     showStatus('已保存到 GitHub，等 1~2 分钟网站自动更新','success');
   } catch(e){
     showStatus('保存出错：'+(e && e.message ? e.message : e),'error');
