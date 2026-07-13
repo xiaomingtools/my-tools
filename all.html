@@ -137,12 +137,6 @@ body {
 .cat-pill.active { color: #fff; border-color: var(--cyan); box-shadow: 0 0 14px rgba(0,240,255,0.35); }
 .cat-all { border-color: rgba(0,240,255,0.4); color: var(--cyan); }
 .cat-all:hover, .cat-all.active { box-shadow: 0 0 14px rgba(0,240,255,0.3); }
-.cat-articles { border-left: 3px solid var(--cyan); }
-.cat-articles:hover, .cat-articles.active { border-color: var(--cyan); box-shadow: 0 0 14px rgba(0,240,255,0.3); }
-.cat-tools { border-left: 3px solid var(--purple); }
-.cat-tools:hover, .cat-tools.active { border-color: var(--purple); box-shadow: 0 0 14px rgba(192,0,255,0.3); }
-.cat-resources { border-left: 3px solid var(--pink); }
-.cat-resources:hover, .cat-resources.active { border-color: var(--pink); box-shadow: 0 0 14px rgba(255,0,128,0.3); }
 .group-flash { animation: groupFlash 1.6s ease; }
 @keyframes groupFlash { 0% { box-shadow: 0 0 0 rgba(0,240,255,0); } 18% { box-shadow: 0 0 26px rgba(0,240,255,0.65); } 100% { box-shadow: 0 0 0 rgba(0,240,255,0); } }
 .view-all { display: inline-block; margin-top: 10px; font-size: 13px; color: var(--cyan); text-decoration: none; border: 1px solid rgba(0,240,255,0.3); border-radius: 8px; padding: 6px 18px; transition: all 0.3s ease; }
@@ -317,20 +311,21 @@ function applyFilter(){
   }
 }
 
-// 顶部分类导航：聚合三个板块的分类，点击切换为单分类视图
+// 顶部分类导航：动态聚合三个板块的所有分类，去重后生成胶囊（后台设什么分类，这里就显示什么），点击切换为单分类视图
 function buildCatNav(data){
   var nav = document.getElementById("catNav");
   if(!nav) return;
-  var cats = [[],[],[]];
-  (data.articles||[]).forEach(function(a){ var c=a.category||"未分类"; if(cats[0].indexOf(c)<0) cats[0].push(c); });
-  (data.tools||[]).forEach(function(t){ var c=t.category||"未分类"; if(cats[1].indexOf(c)<0) cats[1].push(c); });
-  (data.resources||[]).forEach(function(r){ var c=r.category||"未分类"; if(cats[2].indexOf(c)<0) cats[2].push(c); });
-  var meta = [["articles","📝"],["tools","⚡"],["resources","📦"]];
-  var html = '<button class="cat-pill cat-all '+(currentCat?'':'active')+'" data-all="1">全部</button>';
-  meta.forEach(function(m){
-    cats[meta.indexOf(m)].forEach(function(c){
-      html += '<button class="cat-pill cat-'+m[0]+' '+(currentCat===c?'active':'')+'" data-cat="'+escapeHtml(c)+'">'+escapeHtml(c)+'</button>';
+  // 汇总三个板块的分类，按出现顺序去重（同名只显示一次，点击后跨板块一起筛选）
+  var seen = {}, cats = [];
+  [data.articles, data.tools, data.resources].forEach(function(list){
+    (list||[]).forEach(function(it){
+      var c = it.category || "未分类";
+      if(!seen[c]){ seen[c] = true; cats.push(c); }
     });
+  });
+  var html = '<button class="cat-pill cat-all '+(currentCat?'':'active')+'" data-all="1">全部</button>';
+  cats.forEach(function(c){
+    html += '<button class="cat-pill '+(currentCat===c?'active':'')+'" data-cat="'+escapeHtml(c)+'">'+escapeHtml(c)+'</button>';
   });
   nav.innerHTML = html;
   nav.onclick = function(e){
@@ -353,8 +348,9 @@ function scrollTopSlow(){ window.scrollTo({top:0, behavior:"smooth"}); }
 
 function renderArticles(list, q, full){
   var aDiv = document.getElementById("articles"), aCount = document.getElementById("articleCount"), va = document.getElementById("viewAllArticles");
+  var aSec = aDiv.closest('.section'); if(aSec) aSec.style.display='';
   if(full===0 && !q){ aDiv.innerHTML='<div class="empty-state">文章在路上，敬请期待</div>'; aCount.textContent="0 篇"; if(va) va.style.display="none"; return; }
-  if(list.length===0){ aDiv.innerHTML='<div class="empty-state">没有匹配的文章</div>'; aCount.textContent="0 篇"; if(va) va.style.display="none"; return; }
+  if(list.length===0){ if(currentCat){ aDiv.innerHTML=''; aCount.textContent="0 篇"; if(va) va.style.display="none"; if(aSec) aSec.style.display='none'; return; } aDiv.innerHTML='<div class="empty-state">没有匹配的文章</div>'; aCount.textContent="0 篇"; if(va) va.style.display="none"; return; }
   aCount.textContent = q ? (list.length+" 条") : (full+" 篇");
   var shown = q ? list : list.slice(0, PAGE_LIMIT);
   if(shown.length===0){ aDiv.innerHTML='<div class="empty-state">没有匹配的文章</div>'; if(va) va.style.display="none"; return; }
@@ -373,8 +369,9 @@ function renderArticles(list, q, full){
 
 function renderTools(list, q, full){
   var tDiv = document.getElementById("tools"), tCount = document.getElementById("toolCount"), va = document.getElementById("viewAllTools");
+  var tSec = tDiv.closest('.section'); if(tSec) tSec.style.display='';
   if(full===0 && !q){ tDiv.innerHTML='<div class="empty-state">整理中，有好用的马上更新</div>'; tCount.textContent="0 个"; if(va) va.style.display="none"; return; }
-  if(list.length===0){ tDiv.innerHTML='<div class="empty-state">没有匹配的工具</div>'; tCount.textContent="0 个"; if(va) va.style.display="none"; return; }
+  if(list.length===0){ if(currentCat){ tDiv.innerHTML=''; tCount.textContent="0 个"; if(va) va.style.display="none"; if(tSec) tSec.style.display='none'; return; } tDiv.innerHTML='<div class="empty-state">没有匹配的工具</div>'; tCount.textContent="0 个"; if(va) va.style.display="none"; return; }
   tCount.textContent = q ? (list.length+" 条") : (full+" 个");
   var shown = q ? list : list.slice(0, PAGE_LIMIT);
   if(shown.length===0){ tDiv.innerHTML='<div class="empty-state">没有匹配的工具</div>'; if(va) va.style.display="none"; return; }
@@ -394,8 +391,9 @@ function renderTools(list, q, full){
 
 function renderResources(list, q, full){
   var rDiv = document.getElementById("resources"), rCount = document.getElementById("resCount"), va = document.getElementById("viewAllResources");
+  var rSec = rDiv.closest('.section'); if(rSec) rSec.style.display='';
   if(full===0 && !q){ rDiv.innerHTML='<div class="empty-state">资源包整理中，敬请期待</div>'; rCount.textContent="0 个"; if(va) va.style.display="none"; return; }
-  if(list.length===0){ rDiv.innerHTML='<div class="empty-state">没有匹配的资源</div>'; rCount.textContent="0 个"; if(va) va.style.display="none"; return; }
+  if(list.length===0){ if(currentCat){ rDiv.innerHTML=''; rCount.textContent="0 个"; if(va) va.style.display="none"; if(rSec) rSec.style.display='none'; return; } rDiv.innerHTML='<div class="empty-state">没有匹配的资源</div>'; rCount.textContent="0 个"; if(va) va.style.display="none"; return; }
   rCount.textContent = q ? (list.length+" 条") : (full+" 个");
   var shown = q ? list : list.slice(0, PAGE_LIMIT);
   if(shown.length===0){ rDiv.innerHTML='<div class="empty-state">没有匹配的资源</div>'; if(va) va.style.display="none"; return; }
