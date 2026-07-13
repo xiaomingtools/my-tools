@@ -127,6 +127,138 @@
         "转换",
         "PDF"
       ]
+    },
+    {
+      "icon": "🖼️",
+      "name": "图片压缩工具",
+      "category": "图片处理",
+      "desc": "在线无损/有损压缩图片，省空间省流量",
+      "url": "https://www.toolbox365.cn/tools/image-compress/",
+      "tags": [
+        "图片",
+        "压缩",
+        "优化"
+      ]
+    },
+    {
+      "icon": "✂️",
+      "name": "智能抠图工具",
+      "category": "图片处理",
+      "desc": "一键去背景，人像商品图都好用",
+      "url": "https://www.67tool.com/images/matting",
+      "tags": [
+        "图片",
+        "抠图",
+        "去背景"
+      ]
+    },
+    {
+      "icon": "🔲",
+      "name": "九宫格切图工具",
+      "category": "图片处理",
+      "desc": "一张图切成九宫格，朋友圈长图必备",
+      "url": "https://www.dute.org/image-clip",
+      "tags": [
+        "图片",
+        "切图",
+        "社交"
+      ]
+    },
+    {
+      "icon": "🎞️",
+      "name": "GIF制作工具",
+      "category": "图片处理",
+      "desc": "多图或视频合成 GIF 动图",
+      "url": "https://www.67tool.com/images/gif/make",
+      "tags": [
+        "GIF",
+        "制作",
+        "动图"
+      ]
+    },
+    {
+      "icon": "🎥",
+      "name": "视频转GIF工具",
+      "category": "音视频",
+      "desc": "截取视频片段转成 GIF 表情包",
+      "url": "https://www.toolnb.com/tools/videotogif.html",
+      "tags": [
+        "视频",
+        "GIF",
+        "转换"
+      ]
+    },
+    {
+      "icon": "🎵",
+      "name": "视频提取音频工具",
+      "category": "音视频",
+      "desc": "从视频里分离出 MP3 音频",
+      "url": "https://www.toolbox365.cn/tools/video-audio-extract/",
+      "tags": [
+        "音频",
+        "提取",
+        "视频"
+      ]
+    },
+    {
+      "icon": "📅",
+      "name": "万年历工具",
+      "category": "效率软件",
+      "desc": "查公历农历、节气、节假日，日常查日期用得上",
+      "url": "https://www.toolbox365.cn/tools/calendar/",
+      "tags": [
+        "日历",
+        "节气",
+        "查询"
+      ]
+    },
+    {
+      "icon": "💱",
+      "name": "汇率换算工具",
+      "category": "效率软件",
+      "desc": "多币种实时换算，海淘旅游用得上",
+      "url": "https://www.toolbox365.cn/tools/currency/",
+      "tags": [
+        "汇率",
+        "金融",
+        "换算"
+      ]
+    },
+    {
+      "icon": "🏃",
+      "name": "BMI计算器",
+      "category": "健康生活",
+      "desc": "输入身高体重算身体质量指数",
+      "url": "https://www.toolbox365.cn/tools/bmi/",
+      "tags": [
+        "BMI",
+        "健康",
+        "计算"
+      ]
+    },
+    {
+      "icon": "🎲",
+      "name": "随机抽签工具",
+      "category": "效率软件",
+      "desc": "抽签、转盘，做不了决定就交给它",
+      "url": "https://www.toolbox365.cn/tools/draw/",
+      "tags": [
+        "随机",
+        "抽签",
+        "决定"
+      ]
+    },
+    {
+      "icon": "📞",
+      "name": "机号归属地查询",
+      "category": "查询工具",
+      "desc": "输入号码查归属地和运营商",
+      "url": "https://www.toolbox365.cn/tools/phone-location/",
+      "tags": [
+        "手机号",
+        "归属地",
+        "查询"
+      ]
     }
   ],
   "resources": [
