@@ -61,7 +61,6 @@ body {
 .login-box button:hover { opacity:0.9; }
 .login-error { color:var(--pink); font-size:13px; margin-top:10px; text-align:center; }
 
-/* 标签切换 */
 .tabs { display:flex; gap:8px; margin-bottom:24px; flex-wrap:wrap; }
 .tab {
   padding:8px 20px; border-radius:8px; font-size:14px;
@@ -124,6 +123,10 @@ body {
   padding:10px 24px; background:linear-gradient(135deg, #00e676, #00c853);
   color:#fff; font-size:14px; border-radius:8px; border:none; cursor:pointer;
 }
+.btn-portable {
+  padding:10px 18px; background:linear-gradient(135deg, var(--purple), var(--pink));
+  color:#fff; font-size:14px; border-radius:8px; border:none; cursor:pointer;
+}
 .btn-cancel {
   padding:10px 24px; background:rgba(255,255,255,0.1);
   color:var(--dim); font-size:14px; border-radius:8px; border:none; cursor:pointer;
@@ -149,7 +152,7 @@ body {
   margin-bottom:24px; flex-wrap:wrap; gap:10px;
 }
 .topbar .left { font-size:13px; color:var(--dim); }
-.topbar .right { display:flex; gap:10px; }
+.topbar .right { display:flex; gap:10px; flex-wrap:wrap; }
 .topbar .btn-reconfig {
   padding:6px 14px; border-radius:6px; font-size:12px;
   background:rgba(255,255,255,0.1); color:var(--dim);
@@ -178,7 +181,8 @@ body {
     <div class="tip">
       填一次即可，之后自动记住。需要一个有仓库写权限的 GitHub Token。<br>
       生成地址：github.com → 右上角头像 → Settings → Developer settings → Personal access tokens → 勾选 repo 权限 → 生成并复制。<br>
-      Token 只存在你浏览器本地，不上传任何服务器。
+      Token 只存在你浏览器本地或随身链接里，不上传任何服务器。<br>
+      想任何设备都能改？连上后点顶部"复制随身链接"，把链接存微信/备忘录，出门用手机打开就能改。
     </div>
     <input id="cfgOwner" placeholder="GitHub 用户名，如 xiaomingtools">
     <input id="cfgRepo" placeholder="仓库名，如 my-tools">
@@ -198,6 +202,7 @@ body {
     <div class="topbar">
       <span class="left" id="connInfo"></span>
       <span class="right">
+        <button class="btn-portable" onclick="copyPortableLink()">复制随身链接</button>
         <button class="btn-reconfig" onclick="reconfig()">重新配置</button>
         <button class="btn-save" onclick="saveAll()">保存到 GitHub</button>
       </span>
@@ -297,16 +302,28 @@ function b64encode(str){
 function b64decode(b64){
   return decodeURIComponent(escape(atob(b64.replace(/\s/g,''))));
 }
+// URL 安全的 base64（用于塞进链接 hash，避免 +/= 破坏 URL）
+function b64urlEncode(str){
+  return b64encode(str).replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,'');
+}
+function b64urlDecode(s){
+  s = s.replace(/-/g,'+').replace(/_/g,'/');
+  while(s.length % 4) s += '=';
+  return b64decode(s);
+}
+
+function fillCfgForm(){
+  document.getElementById('cfgOwner').value = cfg.owner||'';
+  document.getElementById('cfgRepo').value = cfg.repo||'';
+  document.getElementById('cfgBranch').value = cfg.branch||'main';
+  document.getElementById('cfgPath').value = cfg.path||'data.json';
+  document.getElementById('cfgToken').value = cfg.token||'';
+}
 
 // 读取已保存配置并回填
 (function(){
   try { var s = localStorage.getItem('td_cfg'); if(s) cfg = JSON.parse(s); } catch(e){}
-  if(cfg.owner){
-    document.getElementById('cfgOwner').value = cfg.owner||'';
-    document.getElementById('cfgRepo').value = cfg.repo||'';
-    document.getElementById('cfgBranch').value = cfg.branch||'main';
-    document.getElementById('cfgPath').value = cfg.path||'data.json';
-  }
+  if(cfg.owner){ fillCfgForm(); }
 })();
 
 async function connect(){
@@ -350,7 +367,27 @@ async function connect(){
 function reconfig(){
   document.getElementById('adminView').style.display='none';
   document.getElementById('connectView').style.display='block';
-  document.getElementById('cfgToken').value='';
+  // 切回配置界面时清掉地址栏的 hash，避免下次打开自动登录
+  history.replaceState(null, '', location.pathname + location.search);
+}
+
+// 复制随身链接：把当前配置(含 token)编码进 URL hash
+function copyPortableLink(){
+  var link = location.origin + location.pathname + '#cfg=' + b64urlEncode(JSON.stringify(cfg));
+  if(navigator.clipboard && navigator.clipboard.writeText){
+    navigator.clipboard.writeText(link).then(function(){
+      showStatus('随身链接已复制，存到微信/备忘录，出门用手机打开就能改','success');
+    }, function(){ fallbackCopy(link); });
+  } else {
+    fallbackCopy(link);
+  }
+}
+function fallbackCopy(link){
+  var t = document.createElement('textarea');
+  t.value = link; document.body.appendChild(t); t.select();
+  try { document.execCommand('copy'); showStatus('随身链接已复制','success'); }
+  catch(e){ prompt('复制这个链接随身带：', link); }
+  document.body.removeChild(t);
 }
 
 async function saveAll(){
@@ -492,6 +529,17 @@ function saveModal(type, idx){
   renderAll();
   showStatus('已更新到内存，记得点顶部保存到 GitHub','success');
 }
+
+// 打开带 #cfg= 的随身链接时，自动登录
+(function(){
+  var m = (location.hash || '').match(/#cfg=(.+)$/);
+  if(m){
+    try {
+      cfg = JSON.parse(b64urlDecode(m[1]));
+      if(cfg && cfg.owner && cfg.token){ fillCfgForm(); connect(); }
+    } catch(e){ /* hash 解析失败则正常走手动配置 */ }
+  }
+})();
 </script>
 </body>
 </html>
