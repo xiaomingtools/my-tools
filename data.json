@@ -379,6 +379,54 @@
         "生成",
         "编码"
       ]
+    },
+    {
+      "icon": "🔒",
+      "name": "密码生成工具",
+      "category": "安全工具",
+      "desc": "随机生成高强度密码，安全靠谱",
+      "url": "https://www.toolbox365.cn/tools/password/",
+      "tags": [
+        "密码",
+        "安全",
+        "随机"
+      ]
+    },
+    {
+      "icon": "💰",
+      "name": "人民币大写转换",
+      "category": "实用工具",
+      "desc": "阿拉伯数字转财务大写金额",
+      "url": "https://www.dute.org/rmb",
+      "tags": [
+        "人民币",
+        "大写",
+        "财务"
+      ]
+    },
+    {
+      "icon": "📏",
+      "name": "单位换算工具",
+      "category": "实用工具",
+      "desc": "长度/重量/温度等常用单位一键互转",
+      "url": "https://www.toolbox365.cn/tools/unit/",
+      "tags": [
+        "单位",
+        "换算",
+        "计算"
+      ]
+    },
+    {
+      "icon": "🧩",
+      "name": "JSON格式化工具",
+      "category": "开发工具",
+      "desc": "JSON 美化、压缩、校验，调试接口常用",
+      "url": "https://www.toolnb.com/tools/json.html",
+      "tags": [
+        "JSON",
+        "格式化",
+        "开发"
+      ]
     }
   ],
   "resources": [
