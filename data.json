@@ -343,6 +343,42 @@
         "中文",
         "转换"
       ]
+    },
+    {
+      "icon": "🔢",
+      "name": "字数统计工具",
+      "category": "文本处理",
+      "desc": "统计中英文字数、字符数、标点符号",
+      "url": "https://www.toolbox365.cn/tools/wordcount/",
+      "tags": [
+        "字数",
+        "统计",
+        "文本"
+      ]
+    },
+    {
+      "icon": "📊",
+      "name": "文本对比工具",
+      "category": "文本处理",
+      "desc": "两段文本找出差异并高亮显示",
+      "url": "https://www.toolbox365.cn/tools/diff/",
+      "tags": [
+        "对比",
+        "差异",
+        "文本"
+      ]
+    },
+    {
+      "icon": "🔗",
+      "name": "二维码生成工具",
+      "category": "实用工具",
+      "desc": "生成/解码二维码，支持带 Logo 定制",
+      "url": "https://www.toolnb.com/tools/qrcode.html",
+      "tags": [
+        "二维码",
+        "生成",
+        "编码"
+      ]
     }
   ],
   "resources": [
