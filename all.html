@@ -338,25 +338,41 @@ function renderResources(list, q, full){
   if(va){ va.style.display = (SHOW_VIEW_ALL && !q && full>PAGE_LIMIT) ? "inline-block" : "none"; }
 }
 
-// 先从 API 加载，失败则用缓存
+// 加载数据：优先本地 data.json（GitHub Pages 静态部署可靠来源），其次云端 API，再次本地缓存
 (async function(){
+  // 1) 本地 data.json（同源，无需跨域，GitHub Pages 直接可用）
   try {
-    var r = await fetch(API+'/api/all');
+    var r = await fetch('data.json', {cache:'no-store'});
     if(r.ok){
       var data = await r.json();
-      localStorage.setItem('cachedData', JSON.stringify(data));
-      renderPage(data);
-      return;
+      if(data && (data.site || data.articles || data.tools || data.resources)){
+        try { localStorage.setItem('cachedData', JSON.stringify(data)); } catch(e){}
+        renderPage(data);
+        return;
+      }
     }
   } catch(e){}
 
-  // fallback: localStorage 缓存
+  // 2) 云端 API（若已部署 Cloudflare Worker）
+  try {
+    var r2 = await fetch(API+'/api/all');
+    if(r2.ok){
+      var data2 = await r2.json();
+      if(data2 && (data2.site || data2.articles || data2.tools || data2.resources)){
+        try { localStorage.setItem('cachedData', JSON.stringify(data2)); } catch(e){}
+        renderPage(data2);
+        return;
+      }
+    }
+  } catch(e){}
+
+  // 3) localStorage 缓存
   try {
     var cached = localStorage.getItem('cachedData');
     if(cached){ renderPage(JSON.parse(cached)); return; }
   } catch(e){}
 
-  // 最终 fallback
+  // 4) 最终兜底
   renderPage({site:{title:'工具狂魔小明',subtitle:'刷到好玩的工具就想分享出来。AI 神器、效率软件、资源合集，都在这里。',avatar:'avatar.png'},articles:[],tools:[],resources:[]});
 })();
 (function(){
