@@ -131,6 +131,20 @@ body {
 .search-input { flex: 1; background: transparent; border: none; outline: none; color: #fff; font-size: 14px; }
 .search-input::placeholder { color: var(--text-dim); }
 .search-hint { text-align: center; font-size: 12px; color: var(--cyan); margin-top: 10px; min-height: 16px; letter-spacing: 0.5px; }
+.cat-nav { display: flex; gap: 8px; flex-wrap: wrap; justify-content: center; max-width: 560px; margin: 16px auto 0; }
+.cat-pill { font-size: 12px; color: var(--text-dim); background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.12); border-radius: 20px; padding: 6px 14px; cursor: pointer; transition: all 0.3s ease; white-space: nowrap; font-family: inherit; }
+.cat-pill:hover { color: #fff; }
+.cat-pill.active { color: #fff; border-color: var(--cyan); box-shadow: 0 0 14px rgba(0,240,255,0.35); }
+.cat-all { border-color: rgba(0,240,255,0.4); color: var(--cyan); }
+.cat-all:hover, .cat-all.active { box-shadow: 0 0 14px rgba(0,240,255,0.3); }
+.cat-articles { border-left: 3px solid var(--cyan); }
+.cat-articles:hover, .cat-articles.active { border-color: var(--cyan); box-shadow: 0 0 14px rgba(0,240,255,0.3); }
+.cat-tools { border-left: 3px solid var(--purple); }
+.cat-tools:hover, .cat-tools.active { border-color: var(--purple); box-shadow: 0 0 14px rgba(192,0,255,0.3); }
+.cat-resources { border-left: 3px solid var(--pink); }
+.cat-resources:hover, .cat-resources.active { border-color: var(--pink); box-shadow: 0 0 14px rgba(255,0,128,0.3); }
+.group-flash { animation: groupFlash 1.6s ease; }
+@keyframes groupFlash { 0% { box-shadow: 0 0 0 rgba(0,240,255,0); } 18% { box-shadow: 0 0 26px rgba(0,240,255,0.65); } 100% { box-shadow: 0 0 0 rgba(0,240,255,0); } }
 .view-all { display: inline-block; margin-top: 10px; font-size: 13px; color: var(--cyan); text-decoration: none; border: 1px solid rgba(0,240,255,0.3); border-radius: 8px; padding: 6px 18px; transition: all 0.3s ease; }
 .view-all:hover { background: rgba(0,240,255,0.1); box-shadow: 0 0 16px rgba(0,240,255,0.3); }
 .back-link { display: inline-block; margin-bottom: 18px; font-size: 13px; color: var(--text-dim); text-decoration: none; border: 1px solid rgba(255,255,255,0.12); border-radius: 8px; padding: 5px 14px; transition: all 0.3s ease; }
@@ -220,6 +234,7 @@ body {
       <input type="text" id="searchInput" class="search-input" placeholder="搜索工具、文章、资源…" oninput="applyFilter()">
     </div>
     <div class="search-hint" id="searchHint"></div>
+    <div class="cat-nav" id="catNav"></div>
   </header>
   <div class="divider"><div class="divider-line"></div><div class="divider-dot"></div><div class="divider-dot"></div><div class="divider-dot"></div><div class="divider-line"></div></div>
   <section class="section">
@@ -263,6 +278,7 @@ function escapeHtml(s){ return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt
 var allData = null;
 var PAGE_LIMIT = Infinity;
 var SHOW_VIEW_ALL = false;
+var currentCat = null;
 
 function getQuery(){ var el = document.getElementById("searchInput"); return el ? el.value.trim().toLowerCase() : ""; }
 function matchArticle(a, q){ if(!q) return true; return ((a.title||'')+' '+(a.date||'')).toLowerCase().indexOf(q) > -1; }
@@ -278,20 +294,62 @@ function renderPage(data){
   document.getElementById("footerText").innerHTML = escapeHtml(data.site.title || '工具狂魔小明') + " &copy; 2025<br>好工具，随手分享";
   if(data.site.avatar){ document.getElementById("avatarBox").innerHTML = '<img src="'+escapeHtml(data.site.avatar)+'" style="width:100%;height:100%;border-radius:50%;object-fit:cover;">'; }
   applyFilter();
+  buildCatNav(data);
 }
+
+function catMatch(item){ return !currentCat || (item.category||'未分类')===currentCat; }
 
 function applyFilter(){
   var data = allData; if(!data) return;
   var q = getQuery();
-  var arts = (data.articles||[]).filter(function(a){ return matchArticle(a,q); });
-  renderArticles(arts, q, (data.articles||[]).length);
-  var tools = (data.tools||[]).filter(function(t){ return matchTool(t,q); });
-  renderTools(tools, q, (data.tools||[]).length);
-  var res = (data.resources||[]).filter(function(r){ return matchResource(r,q); });
-  renderResources(res, q, (data.resources||[]).length);
+  var arts = (data.articles||[]).filter(function(a){ return matchArticle(a,q) && catMatch(a); });
+  renderArticles(arts, q, arts.length);
+  var tools = (data.tools||[]).filter(function(t){ return matchTool(t,q) && catMatch(t); });
+  renderTools(tools, q, tools.length);
+  var res = (data.resources||[]).filter(function(r){ return matchResource(r,q) && catMatch(r); });
+  renderResources(res, q, res.length);
   var hint = document.getElementById("searchHint");
-  if(hint){ if(q){ var total = arts.length+tools.length+res.length; hint.textContent = '搜索 "'+q+'" 找到 '+total+' 条结果'; } else { hint.textContent=''; } }
+  if(hint){
+    if(q && currentCat){ hint.textContent = '在「'+currentCat+'」内搜索 "'+q+'" 找到 '+(arts.length+tools.length+res.length)+' 条'; }
+    else if(q){ hint.textContent = '搜索 "'+q+'" 找到 '+(arts.length+tools.length+res.length)+' 条结果'; }
+    else if(currentCat){ hint.textContent = '正在查看分类：'+currentCat; }
+    else { hint.textContent=''; }
+  }
 }
+
+// 顶部分类导航：聚合三个板块的分类，点击切换为单分类视图
+function buildCatNav(data){
+  var nav = document.getElementById("catNav");
+  if(!nav) return;
+  var cats = [[],[],[]];
+  (data.articles||[]).forEach(function(a){ var c=a.category||"未分类"; if(cats[0].indexOf(c)<0) cats[0].push(c); });
+  (data.tools||[]).forEach(function(t){ var c=t.category||"未分类"; if(cats[1].indexOf(c)<0) cats[1].push(c); });
+  (data.resources||[]).forEach(function(r){ var c=r.category||"未分类"; if(cats[2].indexOf(c)<0) cats[2].push(c); });
+  var meta = [["articles","📝"],["tools","⚡"],["resources","📦"]];
+  var html = '<button class="cat-pill cat-all '+(currentCat?'':'active')+'" data-all="1">全部</button>';
+  meta.forEach(function(m){
+    cats[meta.indexOf(m)].forEach(function(c){
+      html += '<button class="cat-pill cat-'+m[0]+' '+(currentCat===c?'active':'')+'" data-cat="'+escapeHtml(c)+'">'+escapeHtml(c)+'</button>';
+    });
+  });
+  nav.innerHTML = html;
+  nav.onclick = function(e){
+    var b = e.target.closest(".cat-pill"); if(!b) return;
+    selectCat(b.dataset.all ? null : b.dataset.cat);
+  };
+}
+
+function selectCat(cat){
+  currentCat = cat || null;
+  buildCatNav(allData);
+  applyFilter();
+  if(currentCat){
+    var nav = document.getElementById('catNav');
+    if(nav){ nav.scrollIntoView({behavior:"smooth", block:"start"}); }
+  }
+}
+
+function scrollTopSlow(){ window.scrollTo({top:0, behavior:"smooth"}); }
 
 function renderArticles(list, q, full){
   var aDiv = document.getElementById("articles"), aCount = document.getElementById("articleCount"), va = document.getElementById("viewAllArticles");
