@@ -5,22 +5,109 @@
     "avatar": "avatar.png"
   },
   "articles": [
-    { "title": "ChatGPT 用了一年，这 5 个用法最值", "url": "https://mp.weixin.qq.com/", "date": "2025-07-10" },
-    { "title": "免费 AI 绘画工具推荐，出图比 Midjourney 还快", "url": "https://mp.weixin.qq.com/", "date": "2025-07-08" },
-    { "title": "用这 3 个工具，我把工作效率翻了一倍", "url": "https://mp.weixin.qq.com/", "date": "2025-07-05" }
+    {
+      "title": "ChatGPT 用了一年，这 5 个用法最值",
+      "url": "https://mp.weixin.qq.com/",
+      "date": "2025-07-10"
+    },
+    {
+      "title": "免费 AI 绘画工具推荐，出图比 Midjourney 还快",
+      "url": "https://mp.weixin.qq.com/",
+      "date": "2025-07-08"
+    },
+    {
+      "title": "用这 3 个工具，我把工作效率翻了一倍",
+      "url": "https://mp.weixin.qq.com/",
+      "date": "2025-07-05"
+    }
   ],
   "tools": [
-    { "icon": "🤖", "name": "ChatGPT", "desc": "目前最稳的通用 AI 对话工具，写文案、改代码、问问题都能用。", "url": "https://chat.openai.com", "tags": ["对话", "必备"] },
-    { "icon": "🧠", "name": "Claude", "desc": "长文本和逻辑分析很强，写长文、读文档、做总结首选。", "url": "https://claude.ai", "tags": ["长文本", "写作"] },
-    { "icon": "🎨", "name": "Midjourney", "desc": "AI 绘画里的氛围感天花板，做封面、插图很出片。", "url": "https://www.midjourney.com", "tags": ["绘画", "设计"] },
-    { "icon": "⚡", "name": "Raycast", "desc": "Mac 启动器神器，快捷键呼出，搜索、剪贴板、快捷指令一手包办。", "url": "https://www.raycast.com", "tags": ["Mac", "效率"] },
-    { "icon": "📓", "name": "Notion", "desc": "笔记、知识库、项目管理一体化，工具收藏和文章草稿都在这。", "url": "https://www.notion.so", "tags": ["笔记", "管理"] }
+    {
+      "icon": "🤖",
+      "name": "ChatGPT",
+      "desc": "目前最稳的通用 AI 对话工具，写文案、改代码、问问题都能用。",
+      "url": "https://chat.openai.com",
+      "tags": [
+        "对话",
+        "必备"
+      ]
+    },
+    {
+      "icon": "🧠",
+      "name": "Claude",
+      "desc": "长文本和逻辑分析很强，写长文、读文档、做总结首选。",
+      "url": "https://claude.ai",
+      "tags": [
+        "长文本",
+        "写作"
+      ]
+    },
+    {
+      "icon": "🎨",
+      "name": "Midjourney",
+      "desc": "AI 绘画里的氛围感天花板，做封面、插图很出片。",
+      "url": "https://www.midjourney.com",
+      "tags": [
+        "绘画",
+        "设计"
+      ]
+    },
+    {
+      "icon": "⚡",
+      "name": "Raycast",
+      "desc": "Mac 启动器神器，快捷键呼出，搜索、剪贴板、快捷指令一手包办。",
+      "url": "https://www.raycast.com",
+      "tags": [
+        "Mac",
+        "效率"
+      ]
+    },
+    {
+      "icon": "📓",
+      "name": "Notion",
+      "desc": "笔记、知识库、项目管理一体化，工具收藏和文章草稿都在这。",
+      "url": "https://www.notion.so",
+      "tags": [
+        "笔记",
+        "管理"
+      ]
+    }
   ],
   "resources": [
-    { "category": "AI 工具包", "icon": "📦", "name": "AI 提示词包", "desc": "整理了 30+ 个 ChatGPT / Claude 常用提示词模板，涵盖写作、翻译、代码、脑暴场景，复制即用。", "url": "https://pan.quark.cn/" },
-    { "category": "AI 工具包", "icon": "🤖", "name": "本地部署模型合集", "desc": "Ollama、LM Studio 等本地跑模型的安装包与配置说明，断网也能用上 AI。", "url": "https://pan.quark.cn/" },
-    { "category": "设计素材", "icon": "🖼️", "name": "封面素材包", "desc": "赛博朋克风封面底图 + 无版权图库合集，做头条图不用每次都从头找素材。", "url": "https://pan.quark.cn/" },
-    { "category": "设计素材", "icon": "🔤", "name": "可商用字体合集", "desc": "20 款无版权风险的中英文字体，公众号排版、做图直接套用。", "url": "https://pan.quark.cn/" },
-    { "category": "效率软件", "icon": "⚙️", "name": "装机必备软件包", "desc": "剪贴板、截图、窗口管理一类的小工具打包，新电脑半小时配齐。", "url": "https://pan.quark.cn/" }
+    {
+      "category": "AI 工具包",
+      "icon": "📦",
+      "name": "AI 提示词包",
+      "desc": "整理了 30+ 个 ChatGPT / Claude 常用提示词模板，涵盖写作、翻译、代码、脑暴场景，复制即用。",
+      "url": "https://pan.quark.cn/"
+    },
+    {
+      "category": "AI 工具包",
+      "icon": "🤖",
+      "name": "本地部署模型合集",
+      "desc": "Ollama、LM Studio 等本地跑模型的安装包与配置说明，断网也能用上 AI。",
+      "url": "https://pan.quark.cn/"
+    },
+    {
+      "category": "设计素材",
+      "icon": "🖼️",
+      "name": "封面素材包",
+      "desc": "赛博朋克风封面底图 + 无版权图库合集，做头条图不用每次都从头找素材。",
+      "url": "https://pan.quark.cn/"
+    },
+    {
+      "category": "设计素材",
+      "icon": "🔤",
+      "name": "可商用字体合集",
+      "desc": "20 款无版权风险的中英文字体，公众号排版、做图直接套用。",
+      "url": "https://pan.quark.cn/"
+    },
+    {
+      "category": "效率软件",
+      "icon": "⚙️",
+      "name": "装机必备软件包",
+      "desc": "剪贴板、截图、窗口管理一类的小工具打包，新电脑半小时配齐。",
+      "url": "https://pan.quark.cn/"
+    }
   ]
 }
