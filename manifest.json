@@ -1,0 +1,26 @@
+{
+  "name": "工具狂魔小明",
+  "short_name": "工具狂魔小明",
+  "description": "刷到好玩的工具就想分享出来。AI 神器、效率软件、资源合集，都在这里。",
+  "start_url": "index.html",
+  "scope": ".",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#06060f",
+  "theme_color": "#06060f",
+  "lang": "zh-CN",
+  "icons": [
+    {
+      "src": "favicon.png",
+      "sizes": "256x256",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "og.png",
+      "sizes": "1200x630",
+      "type": "image/png",
+      "purpose": "any"
+    }
+  ]
+}
