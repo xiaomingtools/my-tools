@@ -1,34 +1,602 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>工具狂魔小明 · 好用的工具导航站</title>
-  <meta name="description" content="工具狂魔小明的工具箱：AI、设计、办公、开发、资源、学习、生活，能提效的工具都在这。">
-  <link rel="stylesheet" href="assets/style.css">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>工具狂魔小明｜工具导航</title>
+<meta name="description" id="metaDesc" content="刷到好玩的工具就想分享出来。AI 神器、效率软件、资源合集，都在这里。">
+<meta property="og:type" content="website">
+<meta property="og:title" id="ogTitle" content="工具狂魔小明">
+<meta property="og:description" id="ogDesc" content="刷到好玩的工具就想分享出来。">
+<meta property="og:image" id="ogImage" content="">
+<link rel="icon" id="faviconLink" href="favicon.png">
+<style>
+:root {
+  --cyan: #00f0ff;
+  --purple: #c000ff;
+  --pink: #ff0080;
+  --bg: #06060f;
+  --card-bg: rgba(10, 10, 30, 0.7);
+  --text: #d0d0f0;
+  --text-dim: #7575a8;
+}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+/* 霓虹光球背景 */
+.neon-orb {
+  position: fixed;
+  border-radius: 50%;
+  filter: blur(80px);
+  opacity: 0.35;
+  z-index: 0;
+  pointer-events: none;
+  animation: orbFloat 18s ease-in-out infinite;
+}
+.neon-orb.o1 { width: 400px; height: 400px; background: var(--cyan); top: -100px; left: -80px; }
+.neon-orb.o2 { width: 350px; height: 350px; background: var(--purple); top: 40%; right: -100px; animation-delay: -6s; }
+.neon-orb.o3 { width: 300px; height: 300px; background: var(--pink); bottom: -80px; left: 30%; animation-delay: -12s; }
+@keyframes orbFloat {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  33% { transform: translate(40px, -30px) scale(1.1); }
+  66% { transform: translate(-30px, 40px) scale(0.95); }
+}
+#particleCanvas { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 1; pointer-events: none; }
+.scanlines {
+  position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+  background: repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,0,0,0.06) 2px, rgba(0,0,0,0.06) 4px);
+  pointer-events: none; z-index: 2;
+}
+.cursor {
+  width: 12px; height: 12px; border: 2px solid var(--cyan); border-radius: 50%;
+  position: fixed; pointer-events: none; z-index: 9999;
+  transition: transform 0.1s, border-color 0.3s; transform: translate(-50%, -50%);
+  box-shadow: 0 0 12px var(--cyan), 0 0 24px var(--cyan);
+}
+.cursor-dot { width: 4px; height: 4px; background: var(--cyan); border-radius: 50%; position: fixed; pointer-events: none; z-index: 9999; transform: translate(-50%, -50%); }
+.cursor.hover { transform: translate(-50%, -50%) scale(2.5); border-color: var(--pink); box-shadow: 0 0 20px var(--pink); }
+.container { max-width: 640px; margin: 0 auto; padding: 50px 24px 60px; position: relative; z-index: 3; opacity: 0; animation: fadeIn 1s ease 0.3s forwards; }
+@keyframes fadeIn { to { opacity: 1; } }
+.header { text-align: center; margin-bottom: 44px; }
+.avatar-wrap { width: 110px; height: 110px; margin: 0 auto 20px; position: relative; animation: avatarFloat 5s ease-in-out infinite; }
+@keyframes avatarFloat { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-8px); } }
+.avatar-ring-outer {
+  position: absolute; top: -10px; left: -10px; right: -10px; bottom: -10px; border-radius: 50%;
+  border: 2px solid transparent;
+  background: conic-gradient(var(--cyan), var(--purple), var(--pink), var(--cyan)) border-box;
+  -webkit-mask: linear-gradient(#fff 0 0) padding-box, linear-gradient(#fff 0 0);
+  mask: linear-gradient(#fff 0 0) padding-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor; mask-composite: exclude;
+  animation: ringSpin 4s linear infinite; filter: drop-shadow(0 0 8px var(--cyan));
+}
+@keyframes ringSpin { to { transform: rotate(360deg); } }
+.avatar-ring-inner { position: absolute; top: -5px; left: -5px; right: -5px; bottom: -5px; border-radius: 50%; border: 1px solid rgba(0,240,255,0.3); animation: ringPulse 2s ease-in-out infinite; }
+@keyframes ringPulse { 0%,100% { box-shadow: 0 0 8px rgba(0,240,255,0.3); } 50% { box-shadow: 0 0 20px rgba(0,240,255,0.6); } }
+.avatar { width: 100%; height: 100%; border-radius: 50%; object-fit: cover; position: relative; z-index: 2; border: 2px solid rgba(0,240,255,0.2); background: linear-gradient(135deg, rgba(0,240,255,0.2), rgba(192,0,255,0.2)); display: flex; align-items: center; justify-content: center; font-size: 40px; }
+.glitch-wrap { display: inline-block; position: relative; margin-bottom: 12px; }
+.glitch { font-size: 30px; font-weight: 800; letter-spacing: 2px; color: #fff; text-shadow: 0 0 10px var(--cyan), 0 0 30px var(--cyan), 0 0 60px var(--cyan); position: relative; }
+.glitch::before, .glitch::after { content: attr(data-text); position: absolute; top: 0; left: 0; width: 100%; height: 100%; }
+.glitch::before { color: var(--pink); animation: glitch1 2.5s infinite; clip-path: polygon(0 0, 100% 0, 100% 35%, 0 35%); text-shadow: 2px 0 var(--pink), -2px 0 var(--cyan); }
+.glitch::after { color: var(--cyan); animation: glitch2 2.5s infinite; clip-path: polygon(0 65%, 100% 65%, 100% 100%, 0 100%); text-shadow: -2px 0 var(--cyan), 2px 0 var(--pink); }
+@keyframes glitch1 { 0%,100% { transform: translate(0); } 92% { transform: translate(0); } 93% { transform: translate(-4px, 2px); } 94% { transform: translate(4px, -1px); } 95% { transform: translate(0); } }
+@keyframes glitch2 { 0%,100% { transform: translate(0); } 92% { transform: translate(0); } 93% { transform: translate(3px, -2px); } 94% { transform: translate(-3px, 1px); } 95% { transform: translate(0); } }
+.subtitle { font-size: 14px; color: var(--text-dim); line-height: 1.7; max-width: 400px; margin: 0 auto; }
+.divider { display: flex; align-items: center; gap: 12px; margin: 28px 0; }
+.divider-line { flex: 1; height: 1px; background: linear-gradient(90deg, transparent, rgba(0,240,255,0.4), transparent); }
+.divider-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--cyan); box-shadow: 0 0 8px var(--cyan); animation: pulse 2s ease-in-out infinite; }
+@keyframes pulse { 0%,100% { opacity: 0.4; transform: scale(0.8); } 50% { opacity: 1; transform: scale(1.4); } }
+.section { margin-bottom: 32px; }
+.section-header { display: flex; align-items: center; gap: 10px; margin-bottom: 18px; }
+.section-icon { width: 36px; height: 36px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 18px; border: 1px solid; }
+.section-icon.articles { border-color: var(--cyan); box-shadow: 0 0 10px rgba(0,240,255,0.3); background: rgba(0,240,255,0.08); }
+.section-icon.tools { border-color: var(--purple); box-shadow: 0 0 10px rgba(192,0,255,0.3); background: rgba(192,0,255,0.08); }
+.section-icon.resources { border-color: var(--pink); box-shadow: 0 0 10px rgba(255,0,128,0.3); background: rgba(255,0,128,0.08); }
+.section-title { font-size: 18px; font-weight: 700; color: #fff; }
+.section-count { font-size: 12px; color: var(--text-dim); background: rgba(255,255,255,0.06); border-radius: 10px; padding: 2px 10px; margin-left: auto; }
+.card { display: block; text-decoration: none; background: var(--card-bg); border: 1px solid rgba(255,255,255,0.08); border-radius: 14px; padding: 18px 20px; margin-bottom: 12px; transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1); position: relative; overflow: hidden; backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); }
+.card::after { content: ""; position: absolute; top: 0; left: -100%; width: 60%; height: 100%; background: linear-gradient(90deg, transparent, rgba(255,255,255,0.04), transparent); transition: left 0.7s ease; }
+.card:hover { border-color: var(--cyan); transform: translateY(-3px); box-shadow: 0 8px 32px rgba(0,240,255,0.15), inset 0 1px 0 rgba(255,255,255,0.06); }
+.card:hover::after { left: 120%; }
+.card-header { display: flex; align-items: center; gap: 10px; margin-bottom: 6px; }
+.card-icon { font-size: 20px; filter: drop-shadow(0 0 6px rgba(0,240,255,0.5)); }
+.card-name { font-size: 16px; font-weight: 600; color: #fff; }
+.card-desc { font-size: 13px; color: var(--text-dim); line-height: 1.6; margin-bottom: 10px; }
+.card-tags { display: flex; gap: 6px; flex-wrap: wrap; }
+.card-tag { font-size: 11px; color: var(--cyan); border: 1px solid rgba(0,240,255,0.3); border-radius: 5px; padding: 2px 8px; background: rgba(0,240,255,0.06); }
+.article-card { display: flex; align-items: center; text-decoration: none; padding: 14px 18px; margin-bottom: 10px; border-left: 2px solid rgba(0,240,255,0.3); transition: all 0.3s ease; border-radius: 0 10px 10px 0; background: rgba(255,255,255,0.02); }
+.article-card:hover { border-left-color: var(--cyan); background: rgba(0,240,255,0.05); }
+.article-info { flex: 1; }
+.article-title-text { font-size: 15px; color: #e0e0ff; font-weight: 500; margin-bottom: 3px; }
+.article-card:hover .article-title-text { color: var(--cyan); }
+.article-date { font-size: 12px; color: var(--text-dim); }
+.article-arrow { color: var(--text-dim); font-size: 14px; transition: all 0.3s; }
+.article-card:hover .article-arrow { color: var(--cyan); transform: translateX(4px); }
+.resource-card { background: var(--card-bg); border: 1px solid rgba(255,0,128,0.15); border-radius: 14px; padding: 20px; margin-bottom: 14px; backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); transition: all 0.3s ease; }
+.resource-card:hover { border-color: var(--pink); box-shadow: 0 8px 28px rgba(255,0,128,0.12); }
+.resource-name { font-size: 16px; font-weight: 600; color: #fff; margin-bottom: 8px; display: flex; align-items: center; gap: 8px; }
+.resource-detail { font-size: 13px; color: var(--text-dim); line-height: 1.6; margin-bottom: 14px; }
+.resource-btn { display: inline-flex; align-items: center; gap: 6px; font-size: 13px; font-weight: 600; color: #000; background: linear-gradient(135deg, var(--cyan), #00c8e0); text-decoration: none; border-radius: 8px; padding: 8px 20px; transition: all 0.3s ease; box-shadow: 0 0 16px rgba(0,240,255,0.3); }
+.resource-btn:hover { box-shadow: 0 0 28px rgba(0,240,255,0.5); transform: translateY(-1px); }
+.resource-group { margin-bottom: 8px; }
+.resource-group + .resource-group { margin-top: 22px; }
+.resource-group-title { display: flex; align-items: center; gap: 8px; font-size: 14px; font-weight: 700; color: var(--pink); letter-spacing: 1px; margin: 4px 0 14px; padding-left: 12px; position: relative; text-shadow: 0 0 8px rgba(255,0,128,0.4); }
+.resource-group-title::before { content: ''; position: absolute; left: 0; top: 50%; transform: translateY(-50%); width: 4px; height: 14px; background: linear-gradient(180deg, var(--pink), var(--cyan)); border-radius: 2px; box-shadow: 0 0 8px rgba(255,0,128,0.6); }
+.empty-state { text-align: center; padding: 24px; color: var(--text-dim); font-size: 13px; border: 1px dashed rgba(255,255,255,0.1); border-radius: 12px; }
+.footer { text-align: center; margin-top: 40px; padding-top: 24px; border-top: 1px solid rgba(255,255,255,0.06); }
+.footer-text { font-size: 12px; color: #7575a8; line-height: 1.6; }
+.admin-link { display: inline-block; margin-top: 12px; font-size: 12px; color: var(--text-dim); text-decoration: none; border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; padding: 4px 14px; transition: all 0.3s; }
+.admin-link:hover { color: var(--cyan); border-color: var(--cyan); }
+.search-box { display: flex; align-items: center; gap: 10px; max-width: 440px; margin: 20px auto 0; background: rgba(10,10,30,0.7); border: 1px solid rgba(0,240,255,0.3); border-radius: 12px; padding: 11px 16px; backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); transition: all 0.3s ease; }
+.search-box:focus-within { border-color: var(--cyan); box-shadow: 0 0 20px rgba(0,240,255,0.25); }
+.search-icon { font-size: 15px; opacity: 0.7; }
+.search-input { flex: 1; background: transparent; border: none; outline: none; color: #fff; font-size: 14px; }
+.search-input::placeholder { color: var(--text-dim); }
+.search-hint { text-align: center; font-size: 12px; color: var(--cyan); margin-top: 10px; min-height: 16px; letter-spacing: 0.5px; }
+.cat-nav { display: flex; gap: 8px; flex-wrap: wrap; justify-content: center; max-width: 560px; margin: 16px auto 0; }
+.cat-pill { font-size: 12px; color: var(--text-dim); background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.12); border-radius: 20px; padding: 6px 14px; cursor: pointer; transition: all 0.3s ease; white-space: nowrap; font-family: inherit; }
+.cat-pill:hover { color: #fff; }
+.cat-pill.active { color: #fff; border-color: var(--cyan); box-shadow: 0 0 14px rgba(0,240,255,0.35); }
+.cat-all { border-color: rgba(0,240,255,0.4); color: var(--cyan); }
+.cat-all:hover, .cat-all.active { box-shadow: 0 0 14px rgba(0,240,255,0.3); }
+.group-flash { animation: groupFlash 1.6s ease; }
+@keyframes groupFlash { 0% { box-shadow: 0 0 0 rgba(0,240,255,0); } 18% { box-shadow: 0 0 26px rgba(0,240,255,0.65); } 100% { box-shadow: 0 0 0 rgba(0,240,255,0); } }
+.view-all { display: inline-block; margin-top: 10px; font-size: 13px; color: var(--cyan); text-decoration: none; border: 1px solid rgba(0,240,255,0.3); border-radius: 8px; padding: 6px 18px; transition: all 0.3s ease; }
+.view-all:hover { background: rgba(0,240,255,0.1); box-shadow: 0 0 16px rgba(0,240,255,0.3); }
+.back-link { display: inline-block; margin-bottom: 18px; font-size: 13px; color: var(--text-dim); text-decoration: none; border: 1px solid rgba(255,255,255,0.12); border-radius: 8px; padding: 5px 14px; transition: all 0.3s ease; }
+.back-link:hover { color: var(--cyan); border-color: var(--cyan); }
+.follow-card {
+  background: linear-gradient(135deg, rgba(0,240,255,0.06), rgba(192,0,255,0.06));
+  border: 1px solid rgba(0,240,255,0.2);
+  border-radius: 18px;
+  padding: 28px 24px;
+  text-align: center;
+  margin-bottom: 32px;
+  position: relative;
+  overflow: hidden;
+}
+.follow-card::before {
+  content: "";
+  position: absolute;
+  top: -50%; left: -50%;
+  width: 200%; height: 200%;
+  background: conic-gradient(transparent, rgba(0,240,255,0.08), transparent, rgba(192,0,255,0.08), transparent);
+  animation: followGlow 8s linear infinite;
+}
+@keyframes followGlow { to { transform: rotate(360deg); } }
+.follow-content { position: relative; z-index: 1; }
+.follow-title {
+  font-size: 20px; font-weight: 700;
+  color: #fff;
+  margin-bottom: 6px;
+  text-shadow: 0 0 20px rgba(0,240,255,0.4);
+}
+.follow-desc {
+  font-size: 13px; color: var(--text-dim);
+  margin-bottom: 18px;
+}
+.qr-wrapper {
+  width: 150px; height: 150px;
+  margin: 0 auto 14px;
+  border-radius: 14px;
+  padding: 6px;
+  background: linear-gradient(135deg, var(--cyan), var(--purple));
+  box-shadow: 0 0 24px rgba(0,240,255,0.3);
+}
+.qr-inner {
+  width: 100%; height: 100%;
+  border-radius: 10px;
+  background: #fff;
+  display: flex; align-items: center; justify-content: center;
+  overflow: hidden;
+}
+.qr-placeholder { font-size: 12px; color: var(--text-dim); text-align: center; padding: 8px; line-height: 1.4; }
+.qr-inner img {
+  width: 100%; height: 100%;
+  object-fit: contain;
+}
+.follow-hint {
+  font-size: 12px; color: var(--text-dim);
+}
+/* 活站信号：让访客一眼看到网站在更新、有活人维护 */
+.live-signal { display:flex; align-items:center; gap:8px; flex-wrap:wrap; justify-content:center; margin:0 auto 14px; max-width:460px; }
+.live-signal .ls-dot { width:7px; height:7px; border-radius:50%; background:#00e676; box-shadow:0 0 8px #00e676; animation:pulse 2s ease-in-out infinite; }
+.live-signal .ls-item { font-size:12px; color:var(--text-dim); background:rgba(0,230,118,0.08); border:1px solid rgba(0,230,118,0.25); border-radius:20px; padding:3px 12px; }
+.live-signal .ls-item b { color:#00e676; font-weight:600; }
+/* 排序导航 */
+.sort-nav { display:flex; gap:8px; justify-content:center; margin:8px auto 0; }
+.sort-pill { font-size:12px; color:var(--text-dim); background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.12); border-radius:20px; padding:5px 16px; cursor:pointer; transition:all .3s ease; font-family:inherit; }
+.sort-pill:hover { color:#fff; }
+.sort-pill.active { color:#fff; border-color:var(--cyan); box-shadow:0 0 14px rgba(0,240,255,0.35); }
+/* 全局空态 + 清空搜索 */
+.search-empty { text-align:center; padding:4px 0 0; }
+.btn-clear-search { margin-top:8px; font-size:13px; color:#000; background:linear-gradient(135deg,var(--cyan),#00c8e0); border:none; border-radius:8px; padding:8px 22px; cursor:pointer; font-family:inherit; box-shadow:0 0 16px rgba(0,240,255,0.3); }
+.btn-clear-search:hover { box-shadow:0 0 26px rgba(0,240,255,0.5); }
+/* 文章摘要 */
+.article-sum { font-size:12px; color:var(--text-dim); margin:2px 0 3px; line-height:1.5; }
+/* 工具标签变体 */
+.card-tag-soft { color:var(--purple); border-color:rgba(192,0,255,0.3); background:rgba(192,0,255,0.06); }
+.card-tag-price { color:#00e676; border-color:rgba(0,230,118,0.3); background:rgba(0,230,118,0.06); }
+.featured-badge { font-size:11px; color:#00e676; border:1px solid rgba(0,230,118,0.4); border-radius:5px; padding:1px 7px; margin-left:8px; }
+/* 资源转存理由 + 已转存人数 */
+.resource-reason { font-size:12px; color:var(--text-dim); line-height:1.6; margin-bottom:12px; padding:8px 12px; background:rgba(0,230,118,0.05); border-left:2px solid rgba(0,230,118,0.3); border-radius:0 8px 8px 0; }
+.saved-badge { font-size:12px; color:#00e676; font-weight:600; margin-left:auto; }
+@media (max-width: 480px) {
+  .container { padding: 36px 16px 48px; }
+  .glitch { font-size: 24px; }
+  .card { padding: 14px 16px; }
+}
+@media (hover: none) and (pointer: coarse) { body { cursor: auto; } .cursor, .cursor-dot { display: none; } }
+</style>
 </head>
-<body data-page="home">
-  <header class="topbar">
-    <a class="brand" href="index.html">
-      <span class="logo">明</span>
-      <span class="name">工具狂魔小明</span>
-    </a>
-    <nav class="nav-links">
-      <a href="index.html">首页</a>
-      <a href="all.html">全部</a>
-      <a href="categories.html">分类</a>
-      <a href="admin.html">管理</a>
-    </nav>
+<body>
+<div class="cursor" id="cursor"></div>
+<div class="cursor-dot" id="cursorDot"></div>
+<div class="neon-orb o1"></div>
+<div class="neon-orb o2"></div>
+<div class="neon-orb o3"></div>
+<canvas id="particleCanvas"></canvas>
+<div class="scanlines"></div>
+<div class="container">
+  <header class="header">
+    <div class="avatar-wrap">
+      <div class="avatar-ring-outer"></div>
+      <div class="avatar-ring-inner"></div>
+      <div class="avatar" id="avatarBox">🛠️</div>
+    </div>
+    <div class="glitch-wrap">
+      <h1 class="glitch" id="siteTitle" data-text="我的工具站">我的工具站</h1>
+    </div>
+    <p class="subtitle" id="siteSubtitle">好工具，随手分享。</p>
+    <div class="live-signal" id="liveSignal"></div>
+    <div class="search-box">
+      <span class="search-icon">🔍</span>
+      <input type="text" id="searchInput" class="search-input" placeholder="搜索工具、文章、资源…" oninput="applyFilter()">
+    </div>
+    <div class="search-hint" id="searchHint"></div>
+    <div class="sort-nav" id="sortNav">
+      <button class="sort-pill active" data-sort="latest" onclick="selectSort('latest')">最新</button>
+      <button class="sort-pill" data-sort="featured" onclick="selectSort('featured')">精选</button>
+    </div>
+    <div class="cat-nav" id="catNav"></div>
+    <div class="search-empty" id="searchEmpty" style="display:none">
+      <div class="empty-state">没有找到「<span id="searchEmptyTerm"></span>」相关的内容</div>
+      <button class="btn-clear-search" onclick="clearSearch()">清空搜索</button>
+    </div>
   </header>
+  <div class="divider"><div class="divider-line"></div><div class="divider-dot"></div><div class="divider-dot"></div><div class="divider-dot"></div><div class="divider-line"></div></div>
+  <section class="section">
+    <div class="section-header"><div class="section-icon articles">📝</div><h2 class="section-title">精选文章</h2><span class="section-count" id="articleCount">0 篇</span></div>
+    <div id="articles"></div>
+    <a href="all.html#articles" class="view-all" id="viewAllArticles">查看全部文章 →</a>
+  </section>
+  <section class="section">
+    <div class="section-header"><div class="section-icon tools">⚡</div><h2 class="section-title">工具推荐</h2><span class="section-count" id="toolCount">0 个</span></div>
+    <div id="tools"></div>
+    <a href="all.html#tools" class="view-all" id="viewAllTools">查看全部工具 →</a>
+  </section>
+  <section class="section">
+    <div class="section-header"><div class="section-icon resources">📦</div><h2 class="section-title">资源合集</h2><span class="section-count" id="resCount">0 个</span></div>
+    <div id="resources"></div>
+    <a href="all.html#resources" class="view-all" id="viewAllResources">查看全部资源 →</a>
+  </section>
+  <div class="divider"><div class="divider-line"></div><div class="divider-dot"></div><div class="divider-dot"></div><div class="divider-dot"></div><div class="divider-line"></div></div>
 
-  <main class="wrap">
-    <div id="app"></div>
-    <footer class="footer">
-      <p>工具狂魔小明 · 随手分享好用的工具 ｜ 数据来自 <a href="data.json">data.json</a></p>
-      <p>本站为静态导航站，可一键部署到 Cloudflare Pages / GitHub Pages。</p>
-    </footer>
-  </main>
+  <!-- 公众号关注引导 -->
+  <div class="follow-card">
+    <div class="follow-content">
+      <div class="follow-title">关注「工具狂魔小明」</div>
+      <div class="follow-desc">刷到什么好用的，就写一篇</div>
+      <div class="qr-wrapper">
+        <div class="qr-inner" id="qrBox">
+          <span class="qr-placeholder">后台设置二维码</span>
+        </div>
+      </div>
+      <div class="follow-hint">微信扫码关注，不错过更新</div>
+    </div>
+  </div>
 
-  <script src="assets/app.js"></script>
+  <footer class="footer">
+    <p class="footer-text" id="footerText">工具狂魔小明 © 2025<br>好工具，随手分享</p>
+    <a href="admin.html" class="admin-link">管理后台</a>
+  </footer>
+</div>
+<script>
+var API = 'https://xiaoming-api.xiaoming-tools.workers.dev';
+function escapeHtml(s){ return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;"); }
+
+// 渲染函数
+var allData = null;
+var PAGE_LIMIT = 5;
+var SHOW_VIEW_ALL = true;
+var currentCat = null;
+
+function getQuery(){ var el = document.getElementById("searchInput"); return el ? el.value.trim().toLowerCase() : ""; }
+function matchArticle(a, q){ if(!q) return true; return ((a.title||'')+' '+(a.date||'')+' '+(a.source||'')+' '+(a.summary||'')).toLowerCase().indexOf(q) > -1; }
+function matchTool(t, q){ if(!q) return true; return ((t.name||'')+' '+(t.desc||'')+' '+((t.tags||[]).join(' '))).toLowerCase().indexOf(q) > -1; }
+function matchResource(r, q){ if(!q) return true; return ((r.name||'')+' '+(r.desc||'')+' '+(r.category||'')).toLowerCase().indexOf(q) > -1; }
+
+function renderPage(data){
+  allData = data;
+  document.title = data.site.title || '工具狂魔小明';
+  document.getElementById("siteTitle").textContent = data.site.title || '工具狂魔小明';
+  document.getElementById("siteTitle").setAttribute("data-text", data.site.title || '工具狂魔小明');
+  document.getElementById("siteSubtitle").textContent = data.site.subtitle || '';
+  document.getElementById("footerText").innerHTML = escapeHtml(data.site.title || '工具狂魔小明') + " &copy; 2025<br>好工具，随手分享";
+  // 动态写入 SEO / 社交分享元信息（分享卡片标题、描述、预览图、站点图标）
+  var md = document.getElementById('metaDesc'); if(md) md.setAttribute('content', data.site.subtitle || md.getAttribute('content'));
+  var ogT = document.getElementById('ogTitle'); if(ogT) ogT.setAttribute('content', data.site.title || '工具狂魔小明');
+  var ogD = document.getElementById('ogDesc'); if(ogD) ogD.setAttribute('content', data.site.subtitle || '');
+  var ogI = document.getElementById('ogImage'); if(ogI) ogI.setAttribute('content', data.site.ogImage || '');
+  var fav = document.getElementById('faviconLink'); if(fav && data.site.favicon) fav.setAttribute('href', data.site.favicon);
+  if(data.site.avatar){ document.getElementById("avatarBox").innerHTML = '<img src="'+escapeHtml(data.site.avatar)+'" loading="lazy" style="width:100%;height:100%;border-radius:50%;object-fit:cover;">'; }
+  var qrBox = document.getElementById("qrBox");
+  if(qrBox){ qrBox.innerHTML = data.site.qrcode ? '<img src="'+escapeHtml(data.site.qrcode)+'" alt="公众号二维码" loading="lazy">' : '<span class="qr-placeholder">后台设置二维码</span>'; }
+  buildLiveSignal(data);
+  applyFilter();
+  buildCatNav(data);
+}
+
+// 排序：最新（按日期倒序）/ 精选（featured 优先）
+var currentSort = 'latest';
+function applySort(list){
+  if(currentSort === 'featured'){
+    return list.slice().sort(function(a,b){ return (b.featured?1:0) - (a.featured?1:0); });
+  }
+  return list.slice().sort(function(a,b){
+    var da = a.date ? new Date(a.date) : null, db = b.date ? new Date(b.date) : null;
+    if(da && db) return db - da;
+    if(da && !db) return -1;
+    if(!da && db) return 1;
+    return 0;
+  });
+}
+function selectSort(mode){
+  currentSort = mode;
+  var nav = document.getElementById('sortNav');
+  if(nav){ nav.querySelectorAll('.sort-pill').forEach(function(b){ b.classList.toggle('active', b.dataset.sort===mode); }); }
+  applyFilter();
+}
+function clearSearch(){
+  var el = document.getElementById('searchInput'); if(el) el.value='';
+  currentCat = null;
+  buildCatNav(allData);
+  applyFilter();
+}
+function buildLiveSignal(data){
+  var ls = document.getElementById('liveSignal');
+  if(!ls) return;
+  var dates = (data.articles||[]).map(function(a){ return a.date; }).filter(Boolean).sort();
+  var latest = dates.length ? dates[dates.length-1] : '';
+  var now = new Date();
+  var weekStart = new Date(now.getFullYear(), now.getMonth(), now.getDate() - now.getDay());
+  var added = 0;
+  [data.articles, data.tools, data.resources].forEach(function(list){
+    (list||[]).forEach(function(it){ if(it.date){ var d = new Date(it.date); if(!isNaN(d) && d >= weekStart) added++; } });
+  });
+  var html = '';
+  if(latest){ html += '<span class="ls-item">🟢 最近更新 <b>'+escapeHtml(latest)+'</b></span>'; }
+  if(added>0){ html += '<span class="ls-item">✨ 本周新增 <b>'+added+'</b> 个</span>'; }
+  ls.innerHTML = html;
+}
+function catMatch(item){ return !currentCat || (item.category||'未分类')===currentCat; }
+
+function applyFilter(){
+  var data = allData; if(!data) return;
+  var q = getQuery();
+  var arts = applySort((data.articles||[]).filter(function(a){ return matchArticle(a,q) && catMatch(a); }));
+  renderArticles(arts, q, arts.length);
+  var tools = applySort((data.tools||[]).filter(function(t){ return matchTool(t,q) && catMatch(t); }));
+  renderTools(tools, q, tools.length);
+  var res = applySort((data.resources||[]).filter(function(r){ return matchResource(r,q) && catMatch(r); }));
+  renderResources(res, q, res.length);
+  var total = arts.length + tools.length + res.length;
+  var hint = document.getElementById("searchHint");
+  if(hint){
+    if(q && currentCat){ hint.textContent = '在「'+currentCat+'」内搜索 "'+q+'" 找到 '+total+' 条'; }
+    else if(q){ hint.textContent = '搜索 "'+q+'" 找到 '+total+' 条结果'; }
+    else if(currentCat){ hint.textContent = '正在查看分类：'+currentCat; }
+    else { hint.textContent=''; }
+  }
+  var seEl = document.getElementById("searchEmpty");
+  if(seEl){
+    if(q && total===0){ var term = document.getElementById("searchEmptyTerm"); if(term) term.textContent = q; seEl.style.display = 'block'; }
+    else { seEl.style.display = 'none'; }
+  }
+}
+
+// 顶部分类导航：动态聚合三个板块的所有分类，去重后生成胶囊（后台设什么分类，这里就显示什么），点击切换为单分类视图
+function buildCatNav(data){
+  var nav = document.getElementById("catNav");
+  if(!nav) return;
+  // 汇总三个板块的分类，按出现顺序去重（同名只显示一次，点击后跨板块一起筛选）
+  var seen = {}, cats = [];
+  [data.articles, data.tools, data.resources].forEach(function(list){
+    (list||[]).forEach(function(it){
+      var c = it.category || "未分类";
+      if(!seen[c]){ seen[c] = true; cats.push(c); }
+    });
+  });
+  var html = '<button class="cat-pill cat-all '+(currentCat?'':'active')+'" data-all="1">全部</button>';
+  cats.forEach(function(c){
+    html += '<button class="cat-pill '+(currentCat===c?'active':'')+'" data-cat="'+escapeHtml(c)+'">'+escapeHtml(c)+'</button>';
+  });
+  nav.innerHTML = html;
+  nav.onclick = function(e){
+    var b = e.target.closest(".cat-pill"); if(!b) return;
+    selectCat(b.dataset.all ? null : b.dataset.cat);
+  };
+}
+
+function selectCat(cat){
+  currentCat = cat || null;
+  buildCatNav(allData);
+  applyFilter();
+  if(currentCat){
+    var nav = document.getElementById('catNav');
+    if(nav){ nav.scrollIntoView({behavior:"smooth", block:"start"}); }
+  }
+}
+
+function scrollTopSlow(){ window.scrollTo({top:0, behavior:"smooth"}); }
+
+function renderArticles(list, q, full){
+  var aDiv = document.getElementById("articles"), aCount = document.getElementById("articleCount"), va = document.getElementById("viewAllArticles");
+  var aSec = aDiv.closest('.section'); if(aSec) aSec.style.display='';
+  if(full===0 && !q){ aDiv.innerHTML='<div class="empty-state">文章在路上，敬请期待</div>'; aCount.textContent="0 篇"; if(va) va.style.display="none"; return; }
+  if(list.length===0){ if(q){ aDiv.innerHTML=''; aCount.textContent="0 篇"; if(va) va.style.display="none"; return; } if(currentCat){ aDiv.innerHTML=''; aCount.textContent="0 篇"; if(va) va.style.display="none"; if(aSec) aSec.style.display='none'; return; } aDiv.innerHTML='<div class="empty-state">没有匹配的文章</div>'; aCount.textContent="0 篇"; if(va) va.style.display="none"; return; }
+  aCount.textContent = q ? (list.length+" 条") : (full+" 篇");
+  var shown = q ? list : list.slice(0, PAGE_LIMIT);
+  if(shown.length===0){ aDiv.innerHTML='<div class="empty-state">没有匹配的文章</div>'; if(va) va.style.display="none"; return; }
+  aDiv.innerHTML="";
+  var groups=[], map={};
+  shown.forEach(function(a){ var cat=a.category||"未分类"; if(!map[cat]){ map[cat]=[]; groups.push(cat); } map[cat].push(a); });
+  groups.forEach(function(cat){
+    var g='<div class="resource-group" data-gtype="articles" data-gcat="'+escapeHtml(cat)+'"><div class="resource-group-title" style="color:var(--cyan);text-shadow:0 0 8px rgba(0,240,255,0.4)">'+escapeHtml(cat)+'</div>';
+    map[cat].forEach(function(a){
+      var meta = [];
+      if(a.source) meta.push(escapeHtml(a.source));
+      if(a.date) meta.push(escapeHtml(a.date));
+      var metaHtml = meta.length ? '<div class="article-date">'+meta.join(' · ')+'</div>' : '';
+      var sumHtml = a.summary ? '<div class="article-sum">'+escapeHtml(a.summary)+'</div>' : '';
+      g+='<a href="'+escapeHtml(a.url)+'" class="article-card" target="_blank" rel="noopener"><div class="article-info"><div class="article-title-text">'+escapeHtml(a.title)+'</div>'+sumHtml+metaHtml+'</div><span class="article-arrow">\u2192</span></a>';
+    });
+    g+='</div>'; aDiv.innerHTML+=g;
+  });
+  if(va){ va.style.display = (SHOW_VIEW_ALL && !q && full>PAGE_LIMIT) ? "inline-block" : "none"; }
+}
+
+function renderTools(list, q, full){
+  var tDiv = document.getElementById("tools"), tCount = document.getElementById("toolCount"), va = document.getElementById("viewAllTools");
+  var tSec = tDiv.closest('.section'); if(tSec) tSec.style.display='';
+  if(full===0 && !q){ tDiv.innerHTML='<div class="empty-state">整理中，有好用的马上更新</div>'; tCount.textContent="0 个"; if(va) va.style.display="none"; return; }
+  if(list.length===0){ if(q){ tDiv.innerHTML=''; tCount.textContent="0 个"; if(va) va.style.display="none"; return; } if(currentCat){ tDiv.innerHTML=''; tCount.textContent="0 个"; if(va) va.style.display="none"; if(tSec) tSec.style.display='none'; return; } tDiv.innerHTML='<div class="empty-state">没有匹配的工具</div>'; tCount.textContent="0 个"; if(va) va.style.display="none"; return; }
+  tCount.textContent = q ? (list.length+" 条") : (full+" 个");
+  var shown = q ? list : list.slice(0, PAGE_LIMIT);
+  if(shown.length===0){ tDiv.innerHTML='<div class="empty-state">没有匹配的工具</div>'; if(va) va.style.display="none"; return; }
+  tDiv.innerHTML="";
+  var groups=[], map={};
+  shown.forEach(function(t){ var cat=t.category||"未分类"; if(!map[cat]){ map[cat]=[]; groups.push(cat); } map[cat].push(t); });
+  groups.forEach(function(cat){
+    var g='<div class="resource-group" data-gtype="tools" data-gcat="'+escapeHtml(cat)+'"><div class="resource-group-title" style="color:var(--purple);text-shadow:0 0 8px rgba(192,0,255,0.4)">'+escapeHtml(cat)+'</div>';
+    map[cat].forEach(function(t){
+      var tags=""; (t.tags||[]).forEach(function(tg){ tags+='<span class="card-tag">'+escapeHtml(tg)+'</span>'; });
+      if(t.platform) tags+='<span class="card-tag card-tag-soft">'+escapeHtml(t.platform)+'</span>';
+      if(t.price) tags+='<span class="card-tag card-tag-price">'+escapeHtml(t.price)+'</span>';
+      if(t.level) tags+='<span class="card-tag card-tag-soft">'+escapeHtml(t.level)+'</span>';
+      var feat = t.featured ? '<span class="featured-badge">精选</span>' : '';
+      g+='<a href="'+escapeHtml(t.url)+'" class="card" target="_blank" rel="noopener"><div class="card-header"><span class="card-icon">'+escapeHtml(t.icon)+'</span><span class="card-name">'+escapeHtml(t.name)+'</span>'+feat+'</div><div class="card-desc">'+escapeHtml(t.desc)+'</div><div class="card-tags">'+tags+'</div></a>';
+    });
+    g+='</div>'; tDiv.innerHTML+=g;
+  });
+  if(va){ va.style.display = (SHOW_VIEW_ALL && !q && full>PAGE_LIMIT) ? "inline-block" : "none"; }
+}
+
+function renderResources(list, q, full){
+  var rDiv = document.getElementById("resources"), rCount = document.getElementById("resCount"), va = document.getElementById("viewAllResources");
+  var rSec = rDiv.closest('.section'); if(rSec) rSec.style.display='';
+  if(full===0 && !q){ rDiv.innerHTML='<div class="empty-state">资源包整理中，敬请期待</div>'; rCount.textContent="0 个"; if(va) va.style.display="none"; return; }
+  if(list.length===0){ if(q){ rDiv.innerHTML=''; rCount.textContent="0 个"; if(va) va.style.display="none"; return; } if(currentCat){ rDiv.innerHTML=''; rCount.textContent="0 个"; if(va) va.style.display="none"; if(rSec) rSec.style.display='none'; return; } rDiv.innerHTML='<div class="empty-state">没有匹配的资源</div>'; rCount.textContent="0 个"; if(va) va.style.display="none"; return; }
+  rCount.textContent = q ? (list.length+" 条") : (full+" 个");
+  var shown = q ? list : list.slice(0, PAGE_LIMIT);
+  if(shown.length===0){ rDiv.innerHTML='<div class="empty-state">没有匹配的资源</div>'; if(va) va.style.display="none"; return; }
+  rDiv.innerHTML="";
+  var groups=[], map={};
+  shown.forEach(function(r){ var cat=r.category||"未分类"; if(!map[cat]){ map[cat]=[]; groups.push(cat); } map[cat].push(r); });
+  groups.forEach(function(cat){
+    var g='<div class="resource-group" data-gtype="resources" data-gcat="'+escapeHtml(cat)+'"><div class="resource-group-title">'+escapeHtml(cat)+'</div>';
+    map[cat].forEach(function(r){
+      var reasonHtml = r.reason ? '<div class="resource-reason">'+escapeHtml(r.reason)+'</div>' : '';
+      var savedHtml = (r.saved>0) ? '<span class="saved-badge">已转存 '+r.saved+' 人</span>' : '';
+      var feat = r.featured ? '<span class="featured-badge">精选</span>' : '';
+      g+='<div class="resource-card"><div class="resource-name"><span class="card-icon">'+escapeHtml(r.icon)+'</span>'+escapeHtml(r.name)+feat+savedHtml+'</div><div class="resource-detail">'+escapeHtml(r.desc)+'</div>'+reasonHtml+'<a href="'+escapeHtml(r.url)+'" class="resource-btn" target="_blank" rel="noopener">打开网盘 \u2192</a></div>';
+    });
+    g+='</div>'; rDiv.innerHTML+=g;
+  });
+  if(va){ va.style.display = (SHOW_VIEW_ALL && !q && full>PAGE_LIMIT) ? "inline-block" : "none"; }
+}
+
+// 加载数据：优先本地 data.json（GitHub Pages 静态部署可靠来源），其次云端 API，再次本地缓存
+(async function(){
+  // 1) 本地 data.json（同源，无需跨域，GitHub Pages 直接可用）
+  try {
+    var r = await fetch('data.json', {cache:'no-store'});
+    if(r.ok){
+      var data = await r.json();
+      if(data && (data.site || data.articles || data.tools || data.resources)){
+        try { localStorage.setItem('cachedData', JSON.stringify(data)); } catch(e){}
+        renderPage(data);
+        return;
+      }
+    }
+  } catch(e){}
+
+  // 2) 云端 API（若已部署 Cloudflare Worker）
+  try {
+    var r2 = await fetch(API+'/api/all');
+    if(r2.ok){
+      var data2 = await r2.json();
+      if(data2 && (data2.site || data2.articles || data2.tools || data2.resources)){
+        try { localStorage.setItem('cachedData', JSON.stringify(data2)); } catch(e){}
+        renderPage(data2);
+        return;
+      }
+    }
+  } catch(e){}
+
+  // 3) localStorage 缓存
+  try {
+    var cached = localStorage.getItem('cachedData');
+    if(cached){ renderPage(JSON.parse(cached)); return; }
+  } catch(e){}
+
+  // 4) 最终兜底
+  renderPage({site:{title:'工具狂魔小明',subtitle:'刷到好玩的工具就想分享出来。AI 神器、效率软件、资源合集，都在这里。',avatar:'avatar.png'},articles:[],tools:[],resources:[]});
+})();
+(function(){
+  var canvas = document.getElementById("particleCanvas"), ctx = canvas.getContext("2d"), particles = [], mouse = {x:-9999,y:-9999}, w, h, isMobile = window.innerWidth < 600;
+  var count = isMobile ? 35 : 80;
+  function resize(){ w = canvas.width = window.innerWidth; h = canvas.height = window.innerHeight; }
+  resize(); window.addEventListener("resize", resize);
+  var colors = ["rgba(0,240,255,", "rgba(192,0,255,", "rgba(255,0,128,"];
+  for(var i=0;i<count;i++){ particles.push({ x:Math.random()*w, y:Math.random()*h, vx:(Math.random()-0.5)*0.4, vy:(Math.random()-0.5)*0.4, r:Math.random()*1.5+0.5, c:colors[i%3] }); }
+  window.addEventListener("mousemove", function(e){ mouse.x=e.clientX; mouse.y=e.clientY; });
+  window.addEventListener("mouseout", function(){ mouse.x=-9999; mouse.y=-9999; });
+  var rafId = null, running = false;
+  function draw(){
+    ctx.clearRect(0,0,w,h);
+    for(var i=0;i<particles.length;i++){
+      var p = particles[i];
+      var dxm = p.x-mouse.x, dym = p.y-mouse.y, dm = Math.sqrt(dxm*dxm+dym*dym);
+      if(dm<150){ var f = (150-dm)/150*2; p.x += dxm/dm*f; p.y += dym/dm*f; }
+      p.x += p.vx; p.y += p.vy;
+      if(p.x<0||p.x>w) p.vx*=-1; if(p.y<0||p.y>h) p.vy*=-1;
+      ctx.beginPath(); ctx.arc(p.x,p.y,p.r,0,Math.PI*2); ctx.fillStyle = p.c+"0.5)"; ctx.fill();
+      for(var j=i+1;j<particles.length;j++){
+        var q = particles[j], dx=p.x-q.x, dy=p.y-q.y, dist=Math.sqrt(dx*dx+dy*dy);
+        if(dist<120){ ctx.beginPath(); ctx.moveTo(p.x,p.y); ctx.lineTo(q.x,q.y); ctx.strokeStyle = p.c+(0.15*(1-dist/120))+")"; ctx.lineWidth = 0.5; ctx.stroke(); }
+      }
+    }
+    if(running) rafId = requestAnimationFrame(draw);
+  }
+  function startAnim(){ if(!running){ running = true; draw(); } }
+  function stopAnim(){ running = false; if(rafId) cancelAnimationFrame(rafId); }
+  // 页面切到后台时暂停粒子动画，回到前台自动恢复，省电省 CPU
+  document.addEventListener("visibilitychange", function(){
+    if(document.hidden) stopAnim(); else startAnim();
+  });
+  startAnim();
+  var isTouch = window.matchMedia("(hover:none) and (pointer:coarse)").matches;
+  if(isTouch) return;
+  var cursor = document.getElementById("cursor"), cursorDot = document.getElementById("cursorDot");
+  document.addEventListener("mousemove", function(e){ cursor.style.left=e.clientX+"px"; cursor.style.top=e.clientY+"px"; cursorDot.style.left=e.clientX+"px"; cursorDot.style.top=e.clientY+"px"; });
+  document.addEventListener("mouseover", function(e){ if(e.target.closest("a")) cursor.classList.add("hover"); });
+  document.addEventListener("mouseout", function(e){ if(e.target.closest("a")) cursor.classList.remove("hover"); });
+})();
+</script>
 </body>
 </html>

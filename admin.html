@@ -1,30 +1,670 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>后台管理 · 工具狂魔小明</title>
-  <meta name="description" content="编辑工具箱数据 data.json。">
-  <link rel="stylesheet" href="assets/style.css">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>后台管理 - 工具狂魔小明</title>
+<style>
+:root {
+  --cyan: #00f0ff;
+  --purple: #c000ff;
+  --pink: #ff0080;
+  --bg: #0a0a1a;
+  --card: rgba(15,15,40,0.9);
+  --text: #d0d0f0;
+  --dim: #7070a0;
+}
+* { margin:0; padding:0; box-sizing:border-box; }
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Microsoft YaHei", sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+}
+#particleCanvas { position:fixed; top:0; left:0; width:100%; height:100%; z-index:0; pointer-events:none; }
+.container { max-width:800px; margin:0 auto; padding:32px 20px; position:relative; z-index:1; }
+.header { text-align:center; margin-bottom:32px; }
+.header h1 {
+  font-size:28px; font-weight:800;
+  background: linear-gradient(90deg, var(--cyan), var(--purple));
+  -webkit-background-clip:text; -webkit-text-fill-color:transparent;
+  margin-bottom:8px;
+}
+.header p { color:var(--dim); font-size:14px; }
+
+/* 连接配置 */
+.login-box {
+  max-width:420px; margin:60px auto;
+  background: var(--card);
+  border:1px solid rgba(0,240,255,0.2);
+  border-radius:16px; padding:36px;
+}
+.login-box h2 { margin-bottom:8px; color:#fff; text-align:center; }
+.login-box .tip { color:var(--dim); font-size:12px; line-height:1.7; margin-bottom:18px; }
+.login-box .tip a { color:var(--cyan); }
+.login-box input {
+  width:100%; padding:12px 16px;
+  background:rgba(255,255,255,0.05);
+  border:1px solid rgba(0,240,255,0.3);
+  border-radius:8px; color:#fff; font-size:15px;
+  margin-bottom:14px; outline:none;
+  transition:border-color 0.3s;
+}
+.login-box input:focus { border-color:var(--cyan); }
+.login-box button {
+  width:100%; padding:12px;
+  background:linear-gradient(135deg, var(--cyan), var(--purple));
+  border:none; border-radius:8px; color:#fff;
+  font-size:15px; font-weight:600; cursor:pointer;
+  transition:opacity 0.3s;
+}
+.login-box button:hover { opacity:0.9; }
+.login-error { color:var(--pink); font-size:13px; margin-top:10px; text-align:center; }
+
+.tabs { display:flex; gap:8px; margin-bottom:24px; flex-wrap:wrap; }
+.tab {
+  padding:8px 20px; border-radius:8px; font-size:14px;
+  cursor:pointer; border:1px solid rgba(255,255,255,0.1);
+  background:rgba(255,255,255,0.03); color:var(--dim);
+  transition:all 0.3s;
+}
+.tab.active { border-color:var(--cyan); color:var(--cyan); background:rgba(0,240,255,0.08); }
+
+.panel { display:none; }
+.panel.active { display:block; }
+
+.form-group { margin-bottom:20px; }
+.form-group label {
+  display:block; font-size:13px; color:var(--cyan); margin-bottom:6px; font-weight:600;
+}
+.form-group input, .form-group textarea {
+  width:100%; padding:10px 14px;
+  background:rgba(255,255,255,0.05);
+  border:1px solid rgba(255,255,255,0.1);
+  border-radius:8px; color:#fff; font-size:14px;
+  outline:none; font-family:inherit;
+  transition:border-color 0.3s;
+}
+.form-group input:focus, .form-group textarea:focus { border-color:var(--cyan); }
+.form-group textarea { min-height:80px; resize:vertical; }
+.form-row { display:flex; gap:12px; }
+.form-row .form-group { flex:1; }
+
+.item-card {
+  background:var(--card); border:1px solid rgba(255,255,255,0.08);
+  border-radius:12px; padding:16px 20px; margin-bottom:12px;
+  display:flex; align-items:flex-start; gap:12px;
+  transition:all 0.3s;
+}
+.item-card:hover { border-color:var(--cyan); }
+.item-info { flex:1; }
+.item-title { font-size:15px; font-weight:600; color:#fff; margin-bottom:4px; }
+.item-desc { font-size:13px; color:var(--dim); word-break:break-all; }
+.item-tags { display:flex; gap:6px; margin-top:6px; flex-wrap:wrap; }
+.item-tag {
+  font-size:11px; color:var(--cyan); border:1px solid rgba(0,240,255,0.3);
+  border-radius:4px; padding:1px 6px;
+}
+.item-actions { display:flex; gap:8px; flex-direction:column; }
+.btn {
+  padding:6px 14px; border-radius:6px; font-size:12px;
+  cursor:pointer; border:none; font-weight:600;
+  transition:all 0.3s; white-space:nowrap;
+}
+.btn-edit { background:rgba(0,240,255,0.15); color:var(--cyan); }
+.btn-edit:hover { background:rgba(0,240,255,0.25); }
+.btn-del { background:rgba(255,0,128,0.15); color:var(--pink); }
+.btn-del:hover { background:rgba(255,0,128,0.25); }
+.admin-group { margin-bottom:20px; }
+.admin-group-title { font-size:13px; font-weight:700; color:var(--purple); text-shadow:0 0 8px rgba(192,0,255,0.4); letter-spacing:1px; margin-bottom:10px; padding-left:12px; position:relative; border-left:3px solid var(--purple); padding-bottom:2px; }
+.btn-add {
+  padding:10px 24px; background:linear-gradient(135deg, var(--cyan), var(--purple));
+  color:#fff; font-size:14px; border-radius:8px; margin-bottom:20px; border:none; cursor:pointer;
+}
+.btn-save {
+  padding:10px 24px; background:linear-gradient(135deg, #00e676, #00c853);
+  color:#fff; font-size:14px; border-radius:8px; border:none; cursor:pointer;
+}
+.btn-portable {
+  padding:10px 18px; background:linear-gradient(135deg, var(--purple), var(--pink));
+  color:#fff; font-size:14px; border-radius:8px; border:none; cursor:pointer;
+}
+.btn-cancel {
+  padding:10px 24px; background:rgba(255,255,255,0.1);
+  color:var(--dim); font-size:14px; border-radius:8px; border:none; cursor:pointer;
+}
+
+.modal-overlay {
+  position:fixed; top:0; left:0; width:100%; height:100%;
+  background:rgba(0,0,0,0.7); z-index:100;
+  display:flex; align-items:center; justify-content:center;
+}
+.modal {
+  background:var(--card); border:1px solid rgba(0,240,255,0.3);
+  border-radius:16px; padding:32px; max-width:500px; width:90%;
+  max-height:80vh; overflow-y:auto;
+}
+.modal h3 { margin-bottom:20px; color:#fff; }
+.modal-actions { display:flex; gap:12px; margin-top:20px; justify-content:flex-end; }
+
+.site-form { max-width:500px; }
+
+.topbar {
+  display:flex; justify-content:space-between; align-items:center;
+  margin-bottom:24px; flex-wrap:wrap; gap:10px;
+}
+.topbar .left { font-size:13px; color:var(--dim); }
+.topbar .right { display:flex; gap:10px; flex-wrap:wrap; }
+.topbar .btn-reconfig {
+  padding:6px 14px; border-radius:6px; font-size:12px;
+  background:rgba(255,255,255,0.1); color:var(--dim);
+  border:none; cursor:pointer;
+}
+
+.status-msg {
+  padding:10px 16px; border-radius:8px; font-size:13px; margin-bottom:16px;
+}
+.status-msg.success { background:rgba(0,230,118,0.15); color:#00e676; border:1px solid rgba(0,230,118,0.3); }
+.status-msg.error { background:rgba(255,0,128,0.15); color:var(--pink); border:1px solid rgba(255,0,128,0.3); }
+
+@media (max-width:600px) {
+  .container { padding:20px 12px; }
+  .form-row { flex-direction:column; }
+}
+</style>
 </head>
-<body data-page="admin">
-  <header class="topbar">
-    <a class="brand" href="index.html">
-      <span class="logo">明</span>
-      <span class="name">工具狂魔小明</span>
-    </a>
-    <nav class="nav-links">
-      <a href="index.html">首页</a>
-      <a href="all.html">全部</a>
-      <a href="categories.html">分类</a>
-      <a href="admin.html">管理</a>
-    </nav>
-  </header>
+<body>
+<canvas id="particleCanvas"></canvas>
+<div class="container">
 
-  <main class="wrap">
-    <div id="app"></div>
-  </main>
+  <!-- 连接配置界面 -->
+  <div id="connectView" class="login-box">
+    <h2>连接 GitHub</h2>
+    <div class="tip">
+      填一次即可，之后自动记住。需要一个有仓库写权限的 GitHub Token。<br>
+      生成地址：github.com → 右上角头像 → Settings → Developer settings → Personal access tokens → 勾选 repo 权限 → 生成并复制。<br>
+      Token 只存在你浏览器本地或随身链接里，不上传任何服务器。<br>
+      想任何设备都能改？连上后点顶部"复制随身链接"，把链接存微信/备忘录，出门用手机打开就能改。
+    </div>
+    <input id="cfgOwner" placeholder="GitHub 用户名，如 xiaomingtools">
+    <input id="cfgRepo" placeholder="仓库名，如 my-tools">
+    <input id="cfgBranch" placeholder="分支，如 main" value="main">
+    <input id="cfgPath" placeholder="数据文件路径，如 data.json" value="data.json">
+    <input id="cfgToken" type="password" placeholder="粘贴 GitHub Token">
+    <button onclick="connect()">连接并加载数据</button>
+    <div class="login-error" id="connectError"></div>
+  </div>
 
-  <script src="assets/app.js"></script>
+  <!-- 管理界面 -->
+  <div id="adminView" style="display:none">
+    <div class="header">
+      <h1>工具狂魔小明</h1>
+      <p>后台管理系统</p>
+    </div>
+    <div class="topbar">
+      <span class="left" id="connInfo"></span>
+      <span class="right">
+        <button class="btn-portable" onclick="copyPortableLink()">复制随身链接</button>
+        <button class="btn-portable" onclick="exportBackup()">导出备份</button>
+        <button class="btn-portable" onclick="document.getElementById('importFile').click()">导入备份</button>
+        <input type="file" id="importFile" accept=".json,.txt,application/json,text/plain" style="display:none" onchange="importBackup(this)">
+        <button class="btn-reconfig" onclick="reconfig()">重新配置</button>
+        <button class="btn-save" onclick="saveAll()">保存到 GitHub</button>
+      </span>
+    </div>
+    <div id="statusMsg"></div>
+
+    <div class="tabs">
+      <div class="tab active" onclick="switchTab('articles', this)">精选文章</div>
+      <div class="tab" onclick="switchTab('tools', this)">工具推荐</div>
+      <div class="tab" onclick="switchTab('resources', this)">资源合集</div>
+      <div class="tab" onclick="switchTab('site', this)">站点设置</div>
+    </div>
+
+    <div id="panel-articles" class="panel active">
+      <button class="btn btn-add" onclick="openModal('article')">添加文章</button>
+      <div id="articleList"></div>
+    </div>
+
+    <div id="panel-tools" class="panel">
+      <button class="btn btn-add" onclick="openModal('tool')">添加工具</button>
+      <div id="toolList"></div>
+    </div>
+
+    <div id="panel-resources" class="panel">
+      <button class="btn btn-add" onclick="openModal('resource')">添加资源包</button>
+      <div id="resourceList"></div>
+    </div>
+
+    <div id="panel-site" class="panel">
+      <div class="site-form">
+        <div class="form-group">
+          <label>站点标题</label>
+          <input id="siteTitle" placeholder="工具狂魔小明">
+        </div>
+        <div class="form-group">
+          <label>副标题</label>
+          <textarea id="siteSubtitle" placeholder="刷到好玩的工具就想分享出来..."></textarea>
+        </div>
+        <div class="form-group">
+          <label>头像文件名（已在仓库里的图片，如 avatar.png）</label>
+          <input id="siteAvatar" placeholder="avatar.png">
+        </div>
+        <div class="form-group">
+          <label>公众号二维码图片（已在仓库里的图片，如 qrcode.png）</label>
+          <input id="siteQrcode" placeholder="qrcode.png">
+        </div>
+        <div class="form-group">
+          <label>站点图标 favicon（已在仓库里的图片，如 favicon.png，留空用默认）</label>
+          <input id="siteFavicon" placeholder="favicon.png">
+        </div>
+        <div class="form-group">
+          <label>分享封面图 OG Image（分享到微信/卡片时的预览图，如 og.png）</label>
+          <input id="siteOg" placeholder="og.png">
+        </div>
+        <button class="btn-save" onclick="updateSite()">更新到内存（记得点顶部保存到 GitHub）</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="modalOverlay" class="modal-overlay" style="display:none">
+  <div class="modal" id="modalContent"></div>
+</div>
+
+<script>
+var cfg = {};
+var data = { site:{}, articles:[], tools:[], resources:[] };
+var fileSha = '';
+var isNewFile = false;
+
+// 粒子背景
+(function(){
+  var c = document.getElementById('particleCanvas'), ctx = c.getContext('2d');
+  var ps=[], w,h;
+  function rs(){ w=c.width=window.innerWidth; h=c.height=window.innerHeight; }
+  rs(); window.addEventListener('resize',rs);
+  for(var i=0;i<50;i++) ps.push({x:Math.random()*w,y:Math.random()*h,vx:(Math.random()-0.5)*0.3,vy:(Math.random()-0.5)*0.3,r:Math.random()*1.5+0.5});
+  function dr(){
+    ctx.clearRect(0,0,w,h);
+    for(var i=0;i<ps.length;i++){
+      var p=ps[i]; p.x+=p.vx;p.y+=p.vy;
+      if(p.x<0||p.x>w)p.vx*=-1;if(p.y<0||p.y>h)p.vy*=-1;
+      ctx.beginPath();ctx.arc(p.x,p.y,p.r,0,Math.PI*2);
+      ctx.fillStyle='rgba(0,240,255,0.4)';ctx.fill();
+      for(var j=i+1;j<ps.length;j++){
+        var q=ps[j],dx=p.x-q.x,dy=p.y-q.y,dist=Math.sqrt(dx*dx+dy*dy);
+        if(dist<100){ctx.beginPath();ctx.moveTo(p.x,p.y);ctx.lineTo(q.x,q.y);ctx.strokeStyle='rgba(0,240,255,'+(0.1*(1-dist/100))+')';ctx.lineWidth=0.5;ctx.stroke();}
+      }
+    }
+    requestAnimationFrame(dr);
+  }
+  dr();
+})();
+
+function showStatus(msg, type){
+  var el = document.getElementById('statusMsg');
+  el.innerHTML = '<div class="status-msg '+type+'">'+msg+'</div>';
+  setTimeout(function(){ el.innerHTML=''; }, 4000);
+}
+
+function esc(s){ return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+
+function apiBase(){
+  return 'https://api.github.com/repos/'+encodeURIComponent(cfg.owner)+'/'+encodeURIComponent(cfg.repo)+'/contents/'+encodeURIComponent(cfg.path);
+}
+
+function b64encode(str){
+  return btoa(unescape(encodeURIComponent(str)));
+}
+function b64decode(b64){
+  return decodeURIComponent(escape(atob(b64.replace(/\s/g,''))));
+}
+// URL 安全的 base64（用于塞进链接 hash，避免 +/= 破坏 URL）
+function b64urlEncode(str){
+  return b64encode(str).replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,'');
+}
+function b64urlDecode(s){
+  s = s.replace(/-/g,'+').replace(/_/g,'/');
+  while(s.length % 4) s += '=';
+  return b64decode(s);
+}
+
+function fillCfgForm(){
+  document.getElementById('cfgOwner').value = cfg.owner||'';
+  document.getElementById('cfgRepo').value = cfg.repo||'';
+  document.getElementById('cfgBranch').value = cfg.branch||'main';
+  document.getElementById('cfgPath').value = cfg.path||'data.json';
+  document.getElementById('cfgToken').value = cfg.token||'';
+}
+
+// 读取已保存配置并回填
+(function(){
+  try { var s = localStorage.getItem('td_cfg'); if(s) cfg = JSON.parse(s); } catch(e){}
+  if(cfg.owner){ fillCfgForm(); }
+})();
+
+async function connect(){
+  cfg.owner = document.getElementById('cfgOwner').value.trim();
+  cfg.repo = document.getElementById('cfgRepo').value.trim();
+  cfg.branch = document.getElementById('cfgBranch').value.trim()||'main';
+  cfg.path = document.getElementById('cfgPath').value.trim()||'data.json';
+  cfg.token = document.getElementById('cfgToken').value.trim();
+  var err = document.getElementById('connectError');
+  err.textContent = '';
+  if(!cfg.owner || !cfg.repo || !cfg.token){
+    err.textContent = '请填完用户名、仓库名、Token';
+    return;
+  }
+  localStorage.setItem('td_cfg', JSON.stringify(cfg));
+  try {
+    var r = await fetch(apiBase()+'?ref='+encodeURIComponent(cfg.branch), {
+      headers:{ 'Authorization':'Bearer '+cfg.token, 'Accept':'application/vnd.github+json', 'X-GitHub-Api-Version':'2022-11-28' }
+    });
+    if(r.status===401){ err.textContent='Token 无效或无仓库权限'; return; }
+    if(r.status===404){
+      // 首次部署：仓库里还没有 data.json，自动初始化空骨架，保存时再创建文件
+      isNewFile = true;
+      fileSha = '';
+      data = { site:{ title:'工具狂魔小明', subtitle:'刷到好玩的工具就想分享出来。AI 神器、效率软件、资源合集，都在这里。', avatar:'avatar.png', favicon:'', ogImage:'' }, articles:[], tools:[], resources:[] };
+      document.getElementById('connectView').style.display='none';
+      document.getElementById('adminView').style.display='block';
+      document.getElementById('connInfo').textContent = cfg.owner+'/'+cfg.repo+' @ '+cfg.branch;
+      renderAll();
+      fillSite();
+      showStatus('首次使用：先填好内容，再点「保存到 GitHub」创建数据文件','success');
+      return;
+    }
+    if(!r.ok){ err.textContent='加载失败：HTTP '+r.status; return; }
+    var j = await r.json();
+    data = JSON.parse(b64decode(j.content));
+    if(!data.site) data.site={};
+    if(!data.articles) data.articles=[];
+    if(!data.tools) data.tools=[];
+    if(!data.resources) data.resources=[];
+    isNewFile = false;
+    fileSha = j.sha;
+    document.getElementById('connectView').style.display='none';
+    document.getElementById('adminView').style.display='block';
+    document.getElementById('connInfo').textContent = cfg.owner+'/'+cfg.repo+' @ '+cfg.branch;
+    renderAll();
+    fillSite();
+    showStatus('数据已加载','success');
+  } catch(e){
+    err.textContent = '连接失败：'+(e && e.message ? e.message : e);
+  }
+}
+
+function reconfig(){
+  document.getElementById('adminView').style.display='none';
+  document.getElementById('connectView').style.display='block';
+  // 切回配置界面时清掉地址栏的 hash，避免下次打开自动登录
+  history.replaceState(null, '', location.pathname + location.search);
+}
+
+// 复制随身链接：把当前配置(含 token)编码进 URL hash
+function copyPortableLink(){
+  var link = location.origin + location.pathname + '#cfg=' + b64urlEncode(JSON.stringify(cfg));
+  if(navigator.clipboard && navigator.clipboard.writeText){
+    navigator.clipboard.writeText(link).then(function(){
+      showStatus('随身链接已复制，存到微信/备忘录，出门用手机打开就能改','success');
+    }, function(){ fallbackCopy(link); });
+  } else {
+    fallbackCopy(link);
+  }
+}
+function fallbackCopy(link){
+  var t = document.createElement('textarea');
+  t.value = link; document.body.appendChild(t); t.select();
+  try { document.execCommand('copy'); showStatus('随身链接已复制','success'); }
+  catch(e){ prompt('复制这个链接随身带：', link); }
+  document.body.removeChild(t);
+}
+
+// 导出备份：把当前后台数据下载成一个 json 文件，随时能再导回
+function exportBackup(){
+  var payload = { site:data.site, articles:data.articles, tools:data.tools, resources:data.resources };
+  var json = JSON.stringify(payload, null, 2);
+  var blob = new Blob([json], { type:'application/json' });
+  var url = URL.createObjectURL(blob);
+  var a = document.createElement('a');
+  var d = new Date();
+  var pad = function(n){ return (n<10?'0':'')+n; };
+  var stamp = ''+d.getFullYear()+pad(d.getMonth()+1)+pad(d.getDate())+pad(d.getHours())+pad(d.getMinutes());
+  a.href = url; a.download = '工具站数据备份-'+stamp+'.json';
+  document.body.appendChild(a); a.click(); document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+  showStatus('已导出备份文件，存到电脑或微信，关键时刻能导入恢复','success');
+}
+
+// 导入备份：选一个之前导出的 json，载入内存（不会立刻覆盖，点保存才写回 GitHub）
+function importBackup(input){
+  var f = input.files && input.files[0];
+  if(!f){ return; }
+  var reader = new FileReader();
+  reader.onload = function(){
+    try {
+      var obj = JSON.parse(reader.result);
+      if(!obj || typeof obj!=='object'){ showStatus('文件格式不对，不是有效备份','error'); return; }
+      data = {
+        site: obj.site || { title:'工具狂魔小明', subtitle:'', avatar:'avatar.png', favicon:'', ogImage:'' },
+        articles: Array.isArray(obj.articles)?obj.articles:[],
+        tools: Array.isArray(obj.tools)?obj.tools:[],
+        resources: Array.isArray(obj.resources)?obj.resources:[]
+      };
+      renderAll(); fillSite();
+      showStatus('已导入到内存，检查一下没问题就点「保存到 GitHub」','success');
+    } catch(e){
+      showStatus('导入失败：'+ (e && e.message ? e.message : e),'error');
+    }
+  };
+  reader.readAsText(f);
+  input.value = '';
+}
+
+async function saveAll(){
+  var payload = { site:data.site, articles:data.articles, tools:data.tools, resources:data.resources };
+  var json = JSON.stringify(payload, null, 2);
+  try {
+    var body = { message:'更新站点数据（后台修改）', content:b64encode(json), branch:cfg.branch };
+    // 仅在更新已有文件时带 sha；首次创建文件不带，否则 GitHub 会报 409
+    if(fileSha) body.sha = fileSha;
+    var r = await fetch(apiBase(), {
+      method:'PUT',
+      headers:{ 'Authorization':'Bearer '+cfg.token, 'Content-Type':'application/json', 'Accept':'application/vnd.github+json', 'X-GitHub-Api-Version':'2022-11-28' },
+      body: JSON.stringify(body)
+    });
+    if(r.status===401){ showStatus('Token 无效，点右上角重新配置','error'); return; }
+    if(r.status===409){
+      // 远程文件已被改动（版本锁冲突）：重新拉取最新数据，提示用户再保存一次
+      showStatus('数据在别处被改过，已自动刷新，请检查后再点一次保存','error');
+      try {
+        var rr = await fetch(apiBase()+'?ref='+encodeURIComponent(cfg.branch), { headers:{ 'Authorization':'Bearer '+cfg.token, 'Accept':'application/vnd.github+json', 'X-GitHub-Api-Version':'2022-11-28' } });
+        if(rr.ok){ var jj = await rr.json(); data = JSON.parse(b64decode(jj.content)); fileSha = jj.sha; isNewFile=false; renderAll(); fillSite(); }
+      } catch(e){}
+      return;
+    }
+    if(!r.ok){ showStatus('保存失败：HTTP '+r.status,'error'); return; }
+    var j = await r.json();
+    fileSha = j.content.sha;
+    isNewFile = false;
+    showStatus('已保存到 GitHub，等 1~2 分钟网站自动更新','success');
+  } catch(e){
+    showStatus('保存出错：'+(e && e.message ? e.message : e),'error');
+  }
+}
+
+function renderAll(){
+  renderList('articleList', data.articles||[], 'article');
+  renderList('toolList', data.tools||[], 'tool');
+  renderList('resourceList', data.resources||[], 'resource');
+}
+
+function renderList(listId, items, type){
+  var el = document.getElementById(listId);
+  if(items.length===0){
+    el.innerHTML = '<div style="text-align:center;padding:40px;color:var(--dim);">暂无内容，点击上方按钮添加</div>';
+    return;
+  }
+  // 按分类分组
+  var groups=[], map={};
+  items.forEach(function(item){ var cat=item.category||"未分类"; if(!map[cat]){ map[cat]=[]; groups.push(cat); } map[cat].push(item); });
+  var h = '';
+  groups.forEach(function(cat){
+    h += '<div class="admin-group"><div class="admin-group-title">'+esc(cat)+'</div>';
+    map[cat].forEach(function(item, idx){
+      // idx 需要在原数组中的真实索引
+      var realIdx = items.indexOf(item);
+      if(type==='article'){
+        h += '<div class="item-card"><div class="item-info"><div class="item-title">'+(item.featured?'<span class="item-tag" style="color:#00e676;border-color:rgba(0,230,118,0.4)">精选</span>':'')+esc(item.title)+'</div><div class="item-desc">'+(item.source?esc(item.source)+' · ':'')+esc(item.url)+' · '+esc(item.date)+'</div></div><div class="item-actions"><button class="btn btn-edit" onclick="openModal(\'article\','+realIdx+')">编辑</button><button class="btn btn-del" onclick="delItem(\'articles\','+realIdx+')">删除</button></div></div>';
+      } else if(type==='tool'){
+        var tags='';
+        (item.tags||[]).forEach(function(t){ tags+='<span class="item-tag">'+esc(t)+'</span>'; });
+        if(item.platform) tags+='<span class="item-tag">'+esc(item.platform)+'</span>';
+        if(item.price) tags+='<span class="item-tag">'+esc(item.price)+'</span>';
+        if(item.level) tags+='<span class="item-tag">'+esc(item.level)+'</span>';
+        h += '<div class="item-card"><div class="item-info"><div class="item-title">'+(item.featured?'<span class="item-tag" style="color:#00e676;border-color:rgba(0,230,118,0.4)">精选</span>':'')+esc(item.icon)+' '+esc(item.name)+'</div><div class="item-desc">'+esc(item.desc)+'</div><div class="item-tags">'+tags+'</div></div><div class="item-actions"><button class="btn btn-edit" onclick="openModal(\'tool\','+realIdx+')">编辑</button><button class="btn btn-del" onclick="delItem(\'tools\','+realIdx+')">删除</button></div></div>';
+      } else if(type==='resource'){
+        h += '<div class="item-card"><div class="item-info"><div class="item-title">'+(item.featured?'<span class="item-tag" style="color:#00e676;border-color:rgba(0,230,118,0.4)">精选</span>':'')+esc(item.icon)+' '+esc(item.name)+'</div><div class="item-desc">'+esc(item.desc)+'</div>'+(item.saved?'<div class="item-desc" style="color:rgba(0,230,118,0.8)">已转存 '+esc(item.saved)+' 人</div>':'')+'</div><div class="item-actions"><button class="btn btn-edit" onclick="openModal(\'resource\','+realIdx+')">编辑</button><button class="btn btn-del" onclick="delItem(\'resources\','+realIdx+')">删除</button></div></div>';
+      }
+    });
+    h += '</div>';
+  });
+  el.innerHTML = h;
+}
+
+function switchTab(tab, el){
+  document.querySelectorAll('.tab').forEach(function(t){ t.classList.remove('active'); });
+  el.classList.add('active');
+  document.querySelectorAll('.panel').forEach(function(p){ p.classList.remove('active'); });
+  document.getElementById('panel-'+tab).classList.add('active');
+}
+
+function delItem(type, idx){
+  if(!confirm('确认删除？')) return;
+  data[type].splice(idx,1);
+  renderAll();
+  showStatus('已删除，记得点顶部保存到 GitHub','success');
+}
+
+function fillSite(){
+  document.getElementById('siteTitle').value = data.site.title || '';
+  document.getElementById('siteSubtitle').value = data.site.subtitle || '';
+  document.getElementById('siteAvatar').value = data.site.avatar || '';
+  document.getElementById('siteQrcode').value = data.site.qrcode || '';
+  document.getElementById('siteFavicon').value = data.site.favicon || '';
+  document.getElementById('siteOg').value = data.site.ogImage || '';
+}
+
+function updateSite(){
+  data.site.title = document.getElementById('siteTitle').value;
+  data.site.subtitle = document.getElementById('siteSubtitle').value;
+  data.site.avatar = document.getElementById('siteAvatar').value.trim() || 'avatar.png';
+  data.site.qrcode = document.getElementById('siteQrcode').value.trim() || '';
+  data.site.favicon = document.getElementById('siteFavicon').value.trim() || '';
+  data.site.ogImage = document.getElementById('siteOg').value.trim() || '';
+  showStatus('站点信息已更新到内存，记得点顶部保存到 GitHub','success');
+}
+
+function openModal(type, idx){
+  var isEdit = idx !== undefined;
+  var item = isEdit ? data[type+'s'][idx] : {};
+  var title = isEdit ? '编辑' : '添加';
+  if(type==='article') title += '文章';
+  else if(type==='tool') title += '工具';
+  else title += '资源包';
+
+  var h = '<h3>'+title+'</h3>';
+  if(type==='article'){
+    h += '<div class="form-group"><label>文章标题</label><input id="mTitle" value="'+esc(item.title||'')+'"></div>';
+    h += '<div class="form-group"><label>分类（决定首页里的分组，如 AI 教程 / 效率提升）</label><input id="mCategory" value="'+esc(item.category||'')+'"></div>';
+    h += '<div class="form-group"><label>文章链接（你的公众号文章地址）</label><input id="mUrl" value="'+esc(item.url||'')+'"></div>';
+    h += '<div class="form-group"><label>日期</label><input id="mDate" value="'+esc(item.date||'')+'" placeholder="2025-07-10"></div>';
+    h += '<div class="form-group"><label>来源平台（如 公众号 / 知乎 / 个人博客）</label><input id="mSource" value="'+esc(item.source||'')+'"></div>';
+    h += '<div class="form-group"><label>摘要（一句话说明这篇讲什么，展示在标题下方）</label><textarea id="mSummary">'+esc(item.summary||'')+'</textarea></div>';
+    h += '<div class="form-group"><label style="color:#00e676"><input type="checkbox" id="mFeatured" '+(item.featured?'checked':'')+'> 设为精选（首页「精选」排序优先展示）</label></div>';
+  } else if(type==='tool'){
+    h += '<div class="form-group"><label>图标 Emoji</label><input id="mIcon" value="'+esc(item.icon||'')+'" placeholder="🤖"></div>';
+    h += '<div class="form-group"><label>工具名称</label><input id="mName" value="'+esc(item.name||'')+'"></div>';
+    h += '<div class="form-group"><label>分类（决定首页里的分组，如 AI 工具 / 设计创作 / 效率软件）</label><input id="mCategory" value="'+esc(item.category||'')+'"></div>';
+    h += '<div class="form-group"><label>描述</label><textarea id="mDesc">'+esc(item.desc||'')+'</textarea></div>';
+    h += '<div class="form-group"><label>链接</label><input id="mUrl" value="'+esc(item.url||'')+'"></div>';
+    h += '<div class="form-group"><label>标签（逗号分隔）</label><input id="mTags" value="'+esc((item.tags||[]).join(','))+'"></div>';
+    h += '<div class="form-row"><div class="form-group"><label>平台（如 Web / Windows / 手机，逗号分隔）</label><input id="mPlatform" value="'+esc(item.platform||'')+'"></div><div class="form-group"><label>价格（免费 / 付费 / 免费+增值）</label><input id="mPrice" value="'+esc(item.price||'')+'"></div></div>';
+    h += '<div class="form-group"><label>难度（入门 / 进阶）</label><input id="mLevel" value="'+esc(item.level||'')+'"></div>';
+    h += '<div class="form-group"><label style="color:#00e676"><input type="checkbox" id="mFeatured" '+(item.featured?'checked':'')+'> 设为精选（首页「精选」排序优先展示）</label></div>';
+  } else if(type==='resource'){
+    h += '<div class="form-group"><label>图标 Emoji</label><input id="mIcon" value="'+esc(item.icon||'')+'" placeholder="📦"></div>';
+    h += '<div class="form-group"><label>资源包名称</label><input id="mName" value="'+esc(item.name||'')+'"></div>';
+    h += '<div class="form-group"><label>分类（决定首页里的分组，如 AI 工具包 / 设计素材 / 效率软件）</label><input id="mCategory" value="'+esc(item.category||'')+'"></div>';
+    h += '<div class="form-group"><label>描述</label><textarea id="mDesc">'+esc(item.desc||'')+'</textarea></div>';
+    h += '<div class="form-group"><label>网盘链接（你的夸克网盘分享链接，形如 https://pan.quark.cn/s/xxxx）</label><input id="mUrl" value="'+esc(item.url||'')+'"></div>';
+    h += '<div class="form-group"><label>为什么值得存（给访客一个转存理由，展示在资源卡里）</label><textarea id="mReason">'+esc(item.reason||'')+'</textarea></div>';
+    h += '<div class="form-group"><label>已转存人数（纯展示的社交证据，如 128）</label><input id="mSaved" value="'+esc(item.saved||'')+'" placeholder="如 128"></div>';
+    h += '<div class="form-group"><label style="color:#00e676"><input type="checkbox" id="mFeatured" '+(item.featured?'checked':'')+'> 设为精选（首页「精选」排序优先展示）</label></div>';
+  }
+  h += '<div class="modal-actions"><button class="btn-cancel" onclick="closeModal()">取消</button><button class="btn-save" onclick="saveModal(\''+type+'\','+idx+')">保存</button></div>';
+
+  document.getElementById('modalContent').innerHTML = h;
+  document.getElementById('modalOverlay').style.display = 'flex';
+}
+
+function closeModal(){
+  document.getElementById('modalOverlay').style.display = 'none';
+}
+
+function saveModal(type, idx){
+  var item = {};
+  if(type==='article'){
+    item.title = document.getElementById('mTitle').value.trim();
+    item.category = document.getElementById('mCategory').value.trim();
+    item.url = document.getElementById('mUrl').value.trim();
+    item.date = document.getElementById('mDate').value.trim();
+    item.source = document.getElementById('mSource').value.trim();
+    item.summary = document.getElementById('mSummary').value.trim();
+    item.featured = document.getElementById('mFeatured').checked;
+  } else if(type==='tool'){
+    item.icon = document.getElementById('mIcon').value.trim();
+    item.name = document.getElementById('mName').value.trim();
+    item.category = document.getElementById('mCategory').value.trim();
+    item.desc = document.getElementById('mDesc').value.trim();
+    item.url = document.getElementById('mUrl').value.trim();
+    item.tags = document.getElementById('mTags').value.split(',').map(function(s){ return s.trim(); }).filter(Boolean);
+    item.platform = document.getElementById('mPlatform').value.trim();
+    item.price = document.getElementById('mPrice').value.trim();
+    item.level = document.getElementById('mLevel').value.trim();
+    item.featured = document.getElementById('mFeatured').checked;
+  } else if(type==='resource'){
+    item.icon = document.getElementById('mIcon').value.trim();
+    item.name = document.getElementById('mName').value.trim();
+    item.category = document.getElementById('mCategory').value.trim();
+    item.desc = document.getElementById('mDesc').value.trim();
+    item.url = document.getElementById('mUrl').value.trim();
+    item.reason = document.getElementById('mReason').value.trim();
+    item.saved = parseInt(document.getElementById('mSaved').value, 10) || 0;
+    item.featured = document.getElementById('mFeatured').checked;
+  }
+  var key = type+'s';
+  if(idx===undefined){
+    data[key].push(item);
+  } else {
+    data[key][idx] = item;
+  }
+  closeModal();
+  renderAll();
+  showStatus('已更新到内存，记得点顶部保存到 GitHub','success');
+}
+
+// 打开带 #cfg= 的随身链接时，自动登录
+(function(){
+  var m = (location.hash || '').match(/#cfg=(.+)$/);
+  if(m){
+    try {
+      cfg = JSON.parse(b64urlDecode(m[1]));
+      if(cfg && cfg.owner && cfg.token){ fillCfgForm(); connect(); }
+    } catch(e){ /* hash 解析失败则正常走手动配置 */ }
+  }
+})();
+</script>
 </body>
 </html>
