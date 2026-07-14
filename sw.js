@@ -4,7 +4,7 @@
 const CACHE = 'xiaoming-v1';
 const STATIC = [
   'index.html', 'all.html', 'admin.html',
-  'data.json', 'favicon.png', 'og.png', 'manifest.json'
+  'favicon.png', 'og.png', 'manifest.json'
 ];
 
 self.addEventListener('install', function (e) {
@@ -35,6 +35,21 @@ self.addEventListener('fetch', function (e) {
       fetch(req).catch(function () {
         return caches.match(req).then(function (m) { return m || caches.match('index.html'); });
       })
+    );
+    return;
+  }
+
+  // data.json 变化频繁（后台每次保存都会改），走网络优先，保证回头客立刻看到最新内容；
+  // 只有网络彻底挂了才回退到缓存，避免"改了没生效"的错觉。
+  if (url.pathname.endsWith('data.json')) {
+    e.respondWith(
+      fetch(req).then(function (res) {
+        if (res && res.status === 200) {
+          var copy = res.clone();
+          caches.open(CACHE).then(function (c) { c.put(req, copy); });
+        }
+        return res;
+      }).catch(function () { return caches.match(req); })
     );
     return;
   }

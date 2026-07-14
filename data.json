@@ -4,493 +4,160 @@
     "subtitle": "刷到好玩的工具就想分享出来。AI 神器、效率软件、资源合集，都在这里。",
     "avatar": "avatar.png",
     "qrcode": "qrcode.png",
-    "favicon": "",
-    "ogImage": ""
+    "favicon": "favicon.png",
+    "ogImage": "og.png"
   },
   "articles": [
     {
-      "title": "ChatGPT 用了一年，这 5 个用法最值",
-      "url": "https://mp.weixin.qq.com/",
+      "title": "我用这个 AI 工具，把一天的工作压缩到了 20 分钟",
+      "url": "https://mp.weixin.qq.com/s/example-article-1",
       "date": "2025-07-10",
-      "category": "AI 教程"
+      "category": "AI 教程",
+      "source": "公众号",
+      "summary": "从写文案到整理资料，一套流程跑下来，效率直接起飞。",
+      "featured": true
     },
     {
-      "title": "免费 AI 绘画工具推荐，出图比 Midjourney 还快",
-      "url": "https://mp.weixin.qq.com/",
+      "title": "一个免费截图工具，比系统自带的好用 10 倍",
+      "url": "https://mp.weixin.qq.com/s/example-article-2",
       "date": "2025-07-08",
-      "category": "AI 教程"
+      "category": "效率提升",
+      "source": "公众号",
+      "summary": "长截图、滚动截图、OCR 一键全有，截图狂魔必备。",
+      "featured": false
     },
     {
-      "title": "用这 3 个工具，我把工作效率翻了一倍",
-      "url": "https://mp.weixin.qq.com/",
+      "title": "Windows 上这 5 个冷门小工具，装了舍不得删",
+      "url": "https://mp.weixin.qq.com/s/example-article-3",
       "date": "2025-07-05",
-      "category": "效率提升"
+      "category": "效率提升",
+      "source": "公众号",
+      "summary": "窗口管理、剪贴板增强，全是那种用了回不去的小东西。",
+      "featured": false
+    },
+    {
+      "title": "我的夸克网盘都存了些什么？这期公开",
+      "url": "https://mp.weixin.qq.com/s/example-article-4",
+      "date": "2025-07-01",
+      "category": "资源合集",
+      "source": "公众号",
+      "summary": "把网盘里压箱底的素材和工具清单，一次讲清楚。",
+      "featured": false
     }
   ],
   "tools": [
     {
       "icon": "🤖",
       "name": "ChatGPT",
+      "desc": "OpenAI 的聊天机器人，写文案、改代码、查资料都能用，我个人最常用的 AI 工具。",
       "category": "AI 工具",
-      "desc": "目前最稳的通用 AI 对话工具，写文案、改代码、问问题都能用。",
+      "tags": ["AI", "写作", "办公"],
       "url": "https://chat.openai.com",
-      "tags": [
-        "对话",
-        "必备"
-      ]
-    },
-    {
-      "icon": "🧠",
-      "name": "Claude",
-      "category": "AI 工具",
-      "desc": "长文本和逻辑分析很强，写长文、读文档、做总结首选。",
-      "url": "https://claude.ai",
-      "tags": [
-        "长文本",
-        "写作"
-      ]
+      "platform": "Web / 手机",
+      "price": "免费+增值",
+      "level": "入门",
+      "featured": true,
+      "date": "2025-07-09"
     },
     {
       "icon": "🎨",
       "name": "Midjourney",
-      "category": "设计创作",
-      "desc": "AI 绘画里的氛围感天花板，做封面、插图很出片。",
+      "desc": "文字生成图片的标杆产品，公众号封面和配图很多靠它出稿。",
+      "category": "AI 工具",
+      "tags": ["AI", "设计", "图片"],
       "url": "https://www.midjourney.com",
-      "tags": [
-        "绘画",
-        "设计"
-      ]
+      "platform": "Web",
+      "price": "付费",
+      "level": "进阶",
+      "featured": false,
+      "date": "2025-07-07"
     },
     {
       "icon": "⚡",
-      "name": "Raycast",
+      "name": "Quicker",
+      "desc": "Windows 上的效率启动器，一键执行复杂操作，我用它来做公众号排版快捷键。",
       "category": "效率软件",
-      "desc": "Mac 启动器神器，快捷键呼出，搜索、剪贴板、快捷指令一手包办。",
-      "url": "https://www.raycast.com",
-      "tags": [
-        "Mac",
-        "效率"
-      ]
+      "tags": ["Windows", "效率", "快捷键"],
+      "url": "https://getquicker.net",
+      "platform": "Windows",
+      "price": "免费+增值",
+      "level": "入门",
+      "featured": false,
+      "date": "2025-07-04"
     },
     {
-      "icon": "📓",
-      "name": "Notion",
+      "icon": "📸",
+      "name": "ShareX",
+      "desc": "开源免费的截图工具，支持长截图、GIF、OCR，截图狂魔必备。",
       "category": "效率软件",
-      "desc": "笔记、知识库、项目管理一体化，工具收藏和文章草稿都在这。",
-      "url": "https://www.notion.so",
-      "tags": [
-        "笔记",
-        "管理"
-      ]
+      "tags": ["截图", "免费", "开源"],
+      "url": "https://getsharex.com",
+      "platform": "Windows",
+      "price": "免费",
+      "level": "入门",
+      "featured": false,
+      "date": "2025-07-03"
     },
     {
-      "icon": "📄",
-      "name": "PDF合并工具",
-      "category": "文档处理",
-      "desc": "多份 PDF 合并成一个文件，整理资料常用",
-      "url": "https://www.toolbox365.cn/tools/pdf-merge/",
-      "tags": [
-        "PDF",
-        "合并",
-        "在线工具"
-      ]
-    },
-    {
-      "icon": "🔤",
-      "name": "PDF转Word工具",
-      "category": "文档处理",
-      "desc": "上传 PDF 一键转成可编辑 Word",
-      "url": "https://www.toolnb.com/tools/pdftoword.html",
-      "tags": [
-        "PDF",
-        "转换",
-        "Word"
-      ]
-    },
-    {
-      "icon": "🗜️",
-      "name": "PDF压缩工具",
-      "category": "文档处理",
-      "desc": "缩小 PDF 体积，发邮件传微信都方便",
-      "url": "https://www.67tool.com/pdf/compress",
-      "tags": [
-        "PDF",
-        "压缩",
-        "在线工具"
-      ]
+      "icon": "🎬",
+      "name": "CapCut",
+      "desc": "剪映国际版，免费无水印，短视频剪辑入门很顺手。",
+      "category": "设计创作",
+      "tags": ["视频", "剪辑", "免费"],
+      "url": "https://www.capcut.com",
+      "platform": "手机 / 桌面",
+      "price": "免费",
+      "level": "入门",
+      "featured": false,
+      "date": "2025-07-02"
     },
     {
       "icon": "📝",
-      "name": "Word转PDF工具",
-      "category": "文档处理",
-      "desc": "Word 文档导出 PDF，排版不跑偏",
-      "url": "https://www.67tool.com/work/doc2pdf",
-      "tags": [
-        "Word",
-        "转换",
-        "PDF"
-      ]
-    },
-    {
-      "icon": "🖼️",
-      "name": "图片压缩工具",
-      "category": "图片处理",
-      "desc": "在线无损/有损压缩图片，省空间省流量",
-      "url": "https://www.toolbox365.cn/tools/image-compress/",
-      "tags": [
-        "图片",
-        "压缩",
-        "优化"
-      ]
-    },
-    {
-      "icon": "✂️",
-      "name": "智能抠图工具",
-      "category": "图片处理",
-      "desc": "一键去背景，人像商品图都好用",
-      "url": "https://www.67tool.com/images/matting",
-      "tags": [
-        "图片",
-        "抠图",
-        "去背景"
-      ]
-    },
-    {
-      "icon": "🔲",
-      "name": "九宫格切图工具",
-      "category": "图片处理",
-      "desc": "一张图切成九宫格，朋友圈长图必备",
-      "url": "https://www.dute.org/image-clip",
-      "tags": [
-        "图片",
-        "切图",
-        "社交"
-      ]
-    },
-    {
-      "icon": "🎞️",
-      "name": "GIF制作工具",
-      "category": "图片处理",
-      "desc": "多图或视频合成 GIF 动图",
-      "url": "https://www.67tool.com/images/gif/make",
-      "tags": [
-        "GIF",
-        "制作",
-        "动图"
-      ]
-    },
-    {
-      "icon": "🎥",
-      "name": "视频转GIF工具",
-      "category": "音视频",
-      "desc": "截取视频片段转成 GIF 表情包",
-      "url": "https://www.toolnb.com/tools/videotogif.html",
-      "tags": [
-        "视频",
-        "GIF",
-        "转换"
-      ]
-    },
-    {
-      "icon": "🎵",
-      "name": "视频提取音频工具",
-      "category": "音视频",
-      "desc": "从视频里分离出 MP3 音频",
-      "url": "https://www.toolbox365.cn/tools/video-audio-extract/",
-      "tags": [
-        "音频",
-        "提取",
-        "视频"
-      ]
-    },
-    {
-      "icon": "📅",
-      "name": "万年历工具",
+      "name": "Notion",
+      "desc": "All-in-one 笔记与知识库，我的工具库和选题库都存在这里。",
       "category": "效率软件",
-      "desc": "查公历农历、节气、节假日，日常查日期用得上",
-      "url": "https://www.toolbox365.cn/tools/calendar/",
-      "tags": [
-        "日历",
-        "节气",
-        "查询"
-      ]
-    },
-    {
-      "icon": "💱",
-      "name": "汇率换算工具",
-      "category": "效率软件",
-      "desc": "多币种实时换算，海淘旅游用得上",
-      "url": "https://www.toolbox365.cn/tools/currency/",
-      "tags": [
-        "汇率",
-        "金融",
-        "换算"
-      ]
-    },
-    {
-      "icon": "🏃",
-      "name": "BMI计算器",
-      "category": "健康生活",
-      "desc": "输入身高体重算身体质量指数",
-      "url": "https://www.toolbox365.cn/tools/bmi/",
-      "tags": [
-        "BMI",
-        "健康",
-        "计算"
-      ]
-    },
-    {
-      "icon": "🎲",
-      "name": "随机抽签工具",
-      "category": "效率软件",
-      "desc": "抽签、转盘，做不了决定就交给它",
-      "url": "https://www.toolbox365.cn/tools/draw/",
-      "tags": [
-        "随机",
-        "抽签",
-        "决定"
-      ]
-    },
-    {
-      "icon": "📞",
-      "name": "机号归属地查询",
-      "category": "查询工具",
-      "desc": "输入号码查归属地和运营商",
-      "url": "https://www.toolbox365.cn/tools/phone-location/",
-      "tags": [
-        "手机号",
-        "归属地",
-        "查询"
-      ]
-    },
-    {
-      "icon": "⏰",
-      "name": "世界时钟工具",
-      "category": "效率软件",
-      "desc": "多国时区时间一眼看全",
-      "url": "https://www.toolbox365.cn/tools/world-clock/",
-      "tags": [
-        "时钟",
-        "时区",
-        "时间"
-      ]
-    },
-    {
-      "icon": "🎂",
-      "name": "年龄计算器",
-      "category": "查询工具",
-      "desc": "算精确到天的真实年龄",
-      "url": "https://www.toolnb.com/tools/nianling.html",
-      "tags": [
-        "年龄",
-        "时间",
-        "计算"
-      ]
-    },
-    {
-      "icon": "⏱️",
-      "name": "番茄钟工具",
-      "category": "效率软件",
-      "desc": "专注计时，干活不容易走神",
-      "url": "https://www.67tool.com/work/tomato",
-      "tags": [
-        "番茄钟",
-        "计时",
-        "专注"
-      ]
-    },
-    {
-      "icon": "📦",
-      "name": "快递查询工具",
-      "category": "查询工具",
-      "desc": "输入单号自动识别物流状态",
-      "url": "https://www.dute.org/kuaidi",
-      "tags": [
-        "快递",
-        "物流",
-        "查询"
-      ]
-    },
-    {
-      "icon": "♻️",
-      "name": "垃圾分类查询",
-      "category": "健康生活",
-      "desc": "查垃圾属于哪种分类，别再扔错",
-      "url": "https://www.toolbox365.cn/tools/garbage-sort/",
-      "tags": [
-        "垃圾",
-        "分类",
-        "生活"
-      ]
-    },
-    {
-      "icon": "🔤",
-      "name": "汉字转拼音工具",
-      "category": "文本处理",
-      "desc": "中文转拼音，支持多音字识别",
-      "url": "https://www.dute.org/pinyin",
-      "tags": [
-        "拼音",
-        "中文",
-        "转换"
-      ]
-    },
-    {
-      "icon": "🀄",
-      "name": "简繁转换工具",
-      "category": "文本处理",
-      "desc": "简体繁体中文互转，两岸三地通用",
-      "url": "https://www.toolbox365.cn/tools/zh-convert/",
-      "tags": [
-        "简繁",
-        "中文",
-        "转换"
-      ]
-    },
-    {
-      "icon": "🔢",
-      "name": "字数统计工具",
-      "category": "文本处理",
-      "desc": "统计中英文字数、字符数、标点符号",
-      "url": "https://www.toolbox365.cn/tools/wordcount/",
-      "tags": [
-        "字数",
-        "统计",
-        "文本"
-      ]
-    },
-    {
-      "icon": "📊",
-      "name": "文本对比工具",
-      "category": "文本处理",
-      "desc": "两段文本找出差异并高亮显示",
-      "url": "https://www.toolbox365.cn/tools/diff/",
-      "tags": [
-        "对比",
-        "差异",
-        "文本"
-      ]
-    },
-    {
-      "icon": "🔗",
-      "name": "二维码生成工具",
-      "category": "实用工具",
-      "desc": "生成/解码二维码，支持带 Logo 定制",
-      "url": "https://www.toolnb.com/tools/qrcode.html",
-      "tags": [
-        "二维码",
-        "生成",
-        "编码"
-      ]
-    },
-    {
-      "icon": "🔒",
-      "name": "密码生成工具",
-      "category": "安全工具",
-      "desc": "随机生成高强度密码，安全靠谱",
-      "url": "https://www.toolbox365.cn/tools/password/",
-      "tags": [
-        "密码",
-        "安全",
-        "随机"
-      ]
-    },
-    {
-      "icon": "💰",
-      "name": "人民币大写转换",
-      "category": "实用工具",
-      "desc": "阿拉伯数字转财务大写金额",
-      "url": "https://www.dute.org/rmb",
-      "tags": [
-        "人民币",
-        "大写",
-        "财务"
-      ]
-    },
-    {
-      "icon": "📏",
-      "name": "单位换算工具",
-      "category": "实用工具",
-      "desc": "长度/重量/温度等常用单位一键互转",
-      "url": "https://www.toolbox365.cn/tools/unit/",
-      "tags": [
-        "单位",
-        "换算",
-        "计算"
-      ]
-    },
-    {
-      "icon": "🧩",
-      "name": "JSON格式化工具",
-      "category": "开发工具",
-      "desc": "JSON 美化、压缩、校验，调试接口常用",
-      "url": "https://www.toolnb.com/tools/json.html",
-      "tags": [
-        "JSON",
-        "格式化",
-        "开发"
-      ]
-    },
-    {
-      "icon": "⏳",
-      "name": "时间戳转换工具",
-      "category": "开发工具",
-      "desc": "时间戳和日期时间互相转换",
-      "url": "https://www.toolnb.com/tools/getTimestamp.html",
-      "tags": [
-        "时间戳",
-        "转换",
-        "开发"
-      ]
-    },
-    {
-      "icon": "📱",
-      "name": "一个木函 App",
-      "category": "效率软件",
-      "desc": "120+ 工具集成在一个 App 里，尺子清理换算啥都有",
-      "url": "https://woodbox.app/",
-      "tags": [
-        "App",
-        "手机",
-        "多功能"
-      ]
+      "tags": ["笔记", "知识库", "协作"],
+      "url": "https://www.notion.so",
+      "platform": "Web / 手机 / 桌面",
+      "price": "免费+增值",
+      "level": "入门",
+      "featured": false,
+      "date": "2025-07-01"
     }
   ],
   "resources": [
     {
-      "category": "AI 工具包",
       "icon": "📦",
-      "name": "AI 提示词包",
-      "desc": "整理了 30+ 个 ChatGPT / Claude 常用提示词模板，涵盖写作、翻译、代码、脑暴场景，复制即用。",
-      "url": "https://pan.quark.cn/"
-    },
-    {
+      "name": "AI 工具合集包",
+      "desc": "整理了我用过的 50+ 个 AI 工具，按写作、设计、编程、办公分类，附直达链接。",
       "category": "AI 工具包",
-      "icon": "🤖",
-      "name": "本地部署模型合集",
-      "desc": "Ollama、LM Studio 等本地跑模型的安装包与配置说明，断网也能用上 AI。",
-      "url": "https://pan.quark.cn/"
+      "url": "https://pan.quark.cn/s/example-ai-tools",
+      "reason": "一个包覆盖写作、设计、编程全场景，新手省去到处找工具的功夫。",
+      "saved": 328,
+      "featured": true,
+      "date": "2025-07-10"
     },
     {
-      "category": "设计素材",
       "icon": "🖼️",
-      "name": "封面素材包",
-      "desc": "赛博朋克风封面底图 + 无版权图库合集，做头条图不用每次都从头找素材。",
-      "url": "https://pan.quark.cn/"
-    },
-    {
+      "name": "公众号封面模板",
+      "desc": "赛博朋克风格的封面 PSD / 在线模板，900×383 尺寸，可直接改字出图。",
       "category": "设计素材",
-      "icon": "🔤",
-      "name": "可商用字体合集",
-      "desc": "20 款无版权风险的中英文字体，公众号排版、做图直接套用。",
-      "url": "https://pan.quark.cn/"
+      "url": "https://pan.quark.cn/s/example-cover-templates",
+      "reason": "赛博朋克风封面直接套用，5 分钟出一张能用的头图。",
+      "saved": 154,
+      "featured": false,
+      "date": "2025-07-06"
     },
     {
-      "category": "效率软件",
       "icon": "⚙️",
-      "name": "装机必备软件包",
-      "desc": "剪贴板、截图、窗口管理一类的小工具打包，新电脑半小时配齐。",
-      "url": "https://pan.quark.cn/"
+      "name": "Windows 效率软件清单",
+      "desc": "我电脑里常驻的小工具，涵盖截图、搜索、剪贴板、窗口管理。",
+      "category": "效率软件",
+      "url": "https://pan.quark.cn/s/example-win-tools",
+      "reason": "装机直接照着装一遍，日常操作能省一大半步骤。",
+      "saved": 97,
+      "featured": false,
+      "date": "2025-07-05"
     }
   ]
 }

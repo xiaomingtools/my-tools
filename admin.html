@@ -4,6 +4,10 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>后台管理 - 工具狂魔小明</title>
+<link rel="icon" href="favicon.png">
+<meta name="theme-color" content="#0a0a1a">
+<link rel="manifest" href="manifest.json">
+<link rel="preload" href="favicon.png" as="image">
 <style>
 :root {
   --cyan: #00f0ff;
@@ -186,11 +190,11 @@ body {
       Token 只存在你浏览器本地或随身链接里，不上传任何服务器。<br>
       想任何设备都能改？连上后点顶部"复制随身链接"，把链接存微信/备忘录，出门用手机打开就能改。
     </div>
-    <input id="cfgOwner" placeholder="GitHub 用户名，如 xiaomingtools">
-    <input id="cfgRepo" placeholder="仓库名，如 my-tools">
-    <input id="cfgBranch" placeholder="分支，如 main" value="main">
-    <input id="cfgPath" placeholder="数据文件路径，如 data.json" value="data.json">
-    <input id="cfgToken" type="password" placeholder="粘贴 GitHub Token">
+    <input id="cfgOwner" placeholder="GitHub 用户名，如 xiaomingtools" aria-label="GitHub 用户名">
+    <input id="cfgRepo" placeholder="仓库名，如 my-tools" aria-label="仓库名">
+    <input id="cfgBranch" placeholder="分支，如 main" value="main" aria-label="分支">
+    <input id="cfgPath" placeholder="数据文件路径，如 data.json" value="data.json" aria-label="数据文件路径">
+    <input id="cfgToken" type="password" placeholder="粘贴 GitHub Token" aria-label="GitHub Token">
     <button onclick="connect()">连接并加载数据</button>
     <div class="login-error" id="connectError"></div>
   </div>
@@ -402,9 +406,11 @@ function reconfig(){
   history.replaceState(null, '', location.pathname + location.search);
 }
 
-// 复制随身链接：把当前配置(含 token)编码进 URL hash
+// 复制随身链接：只编码 owner/repo/branch/path，【不带入 Token】
+// 这样链接可以放心存微信/备忘录，打开后自动填好仓库信息，只需再贴一次 Token 即可。
 function copyPortableLink(){
-  var link = location.origin + location.pathname + '#cfg=' + b64urlEncode(JSON.stringify(cfg));
+  var safeCfg = { owner: cfg.owner, repo: cfg.repo, branch: cfg.branch, path: cfg.path };
+  var link = location.origin + location.pathname + '#cfg=' + b64urlEncode(JSON.stringify(safeCfg));
   if(navigator.clipboard && navigator.clipboard.writeText){
     navigator.clipboard.writeText(link).then(function(){
       showStatus('随身链接已复制，存到微信/备忘录，出门用手机打开就能改','success');
@@ -476,11 +482,12 @@ async function saveAll(){
     });
     if(r.status===401){ showStatus('Token 无效，点右上角重新配置','error'); return; }
     if(r.status===409){
-      // 远程文件已被改动（版本锁冲突）：重新拉取最新数据，提示用户再保存一次
-      showStatus('数据在别处被改过，已自动刷新，请检查后再点一次保存','error');
+      // 远程文件已被改动（版本锁冲突）：只重新拉取最新 sha 作为保存基准，
+      // 但【保留本地未保存的修改】，不让远端旧版覆盖掉你刚编辑的内容。
+      showStatus('数据在别处被改过，已保留你的修改，直接再点一次保存即可覆盖','error');
       try {
         var rr = await fetch(apiBase()+'?ref='+encodeURIComponent(cfg.branch), { headers:{ 'Authorization':'Bearer '+cfg.token, 'Accept':'application/vnd.github+json', 'X-GitHub-Api-Version':'2022-11-28' } });
-        if(rr.ok){ var jj = await rr.json(); data = JSON.parse(b64decode(jj.content)); fileSha = jj.sha; isNewFile=false; renderAll(); fillSite(); }
+        if(rr.ok){ var jj = await rr.json(); fileSha = jj.sha; isNewFile=false; }
       } catch(e){}
       return;
     }
@@ -665,6 +672,11 @@ function saveModal(type, idx){
     } catch(e){ /* hash 解析失败则正常走手动配置 */ }
   }
 })();
+
+// Service Worker 注册（PWA：可添加到主屏幕、离线可访问后台）
+if('serviceWorker' in navigator){
+  window.addEventListener('load', function(){ navigator.serviceWorker.register('sw.js').catch(function(){}); });
+}
 </script>
 </body>
 </html>
