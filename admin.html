@@ -562,6 +562,53 @@ function itemCardHtml(item, type, fullItems){
   }
 }
 
+// 导航管理面板渲染
+function renderNavList(){
+  var el = document.getElementById('navList');
+  if(!el) return;
+  var nav = data.navigation || [];
+  if(nav.length === 0){
+    el.innerHTML = '<div style="text-align:center;padding:40px;color:var(--dim);">暂无导航配置，点击上方「添加一级分组」开始创建</div>';
+    return;
+  }
+  var h = '';
+  nav.forEach(function(g, gi){
+    h += '<div class="nav-card">';
+    h += '<div class="nav-card-header"><span class="nav-card-icon">'+esc(g.icon||'📂')+'</span><span class="nav-card-name">'+esc(g.name)+'</span>';
+    h += '<div class="nav-card-actions"><button class="btn btn-edit" onclick="openModal(\'navGroup\','+gi+')">编辑</button><button class="btn btn-del" onclick="delNavGroup('+gi+')">删除</button></div></div>';
+    // 子分类列表
+    if((g.subs||[]).length > 0){
+      h += '<div class="nav-subs">';
+      (g.subs||[]).forEach(function(s, si){
+        h += '<span class="nav-sub-tag"><span class="nav-sub-name">'+esc(s)+'</span>';
+        h += '<a class="nav-sub-del" onclick="delNavSub('+gi+','+si+')" title="删除此子分类">×</a></span>';
+      });
+      h += '<button class="nav-add-sub" onclick="openModal(\'navSub\',{pIdx:'+gi+',sIdx:-1})">+ 添加子分类</button>';
+      h += '</div>';
+    } else {
+      h += '<div style="padding-top:8px;"><button class="nav-add-sub" onclick="openModal(\'navSub\',{pIdx:'+gi+',sIdx:-1})">+ 添加子分类</button></div>';
+    }
+    h += '</div>';
+  });
+  el.innerHTML = h;
+}
+
+function delNavGroup(idx){
+  if(!confirm('确认删除该分组及其所有子分类？')) return;
+  data.navigation.splice(idx, 1);
+  renderAll();
+  showStatus('已删除，记得点顶部保存到 GitHub','success');
+}
+
+function delNavSub(pIdx, sIdx){
+  if(!confirm('确认删除该子分类？')) return;
+  if(data.navigation && data.navigation[pIdx] && data.navigation[pIdx].subs){
+    data.navigation[pIdx].subs.splice(sIdx, 1);
+  }
+  renderAll();
+  showStatus('已删除，记得点顶部保存到 GitHub','success');
+}
+
 function renderList(listId, items, type){
   var el = document.getElementById(listId);
   if((items||[]).length===0){
