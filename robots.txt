@@ -1,0 +1,5 @@
+User-agent: *
+Allow: /
+
+# 部署后把下面的地址改成你的真实 GitHub Pages 域名（仓库名替换 xiaoming-tools）
+Sitemap: https://xiaoming-tools.github.io/sitemap.xml
