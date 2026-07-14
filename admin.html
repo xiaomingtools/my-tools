@@ -134,6 +134,29 @@ body {
   color:var(--dim); font-size:14px; border-radius:8px; border:none; cursor:pointer;
 }
 
+/* 后台检索栏与分类导航（参照 ghxi 的交互：分类导航 + 搜索） */
+.panel-head { display:flex; gap:12px; align-items:center; margin-bottom:16px; flex-wrap:wrap; }
+.panel-head .btn-add { margin-bottom:0; flex:0 0 auto; }
+.admin-search {
+  flex:1; min-width:200px; padding:10px 16px;
+  background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.12);
+  border-radius:20px; color:#fff; font-size:14px; outline:none; font-family:inherit;
+  transition:border-color 0.3s;
+}
+.admin-search:focus { border-color:var(--cyan); box-shadow:0 0 12px rgba(0,240,255,0.25); }
+.admin-cat-nav { margin-bottom:18px; }
+.cat-nav { display:flex; gap:8px; flex-wrap:wrap; }
+.cat-pill {
+  font-size:12px; color:var(--dim); background:rgba(255,255,255,0.05);
+  border:1px solid rgba(255,255,255,0.12); border-radius:20px; padding:6px 14px;
+  cursor:pointer; transition:all 0.3s ease; white-space:nowrap; font-family:inherit;
+}
+.cat-pill:hover { color:#fff; }
+.cat-pill.active { color:#fff; border-color:var(--cyan); box-shadow:0 0 14px rgba(0,240,255,0.35); }
+.cat-all { border-color:rgba(0,240,255,0.4); color:var(--cyan); }
+.cat-all:hover, .cat-all.active { box-shadow:0 0 14px rgba(0,240,255,0.3); }
+.admin-group-count { color:var(--dim); font-weight:400; font-size:11px; margin-left:4px; text-shadow:none; }
+
 .modal-overlay {
   position:fixed; top:0; left:0; width:100%; height:100%;
   background:rgba(0,0,0,0.7); z-index:100;
@@ -222,17 +245,29 @@ body {
     </div>
 
     <div id="panel-articles" class="panel active">
-      <button class="btn btn-add" onclick="openModal('article')">添加文章</button>
+      <div class="panel-head">
+        <button class="btn btn-add" onclick="openModal('article')">添加文章</button>
+        <input class="admin-search" id="search-articles" placeholder="搜索标题 / 链接 / 日期…" oninput="onAdminSearch('articles', this.value)">
+      </div>
+      <div class="cat-nav admin-cat-nav" id="catNav-articles"></div>
       <div id="articleList"></div>
     </div>
 
     <div id="panel-tools" class="panel">
-      <button class="btn btn-add" onclick="openModal('tool')">添加工具</button>
+      <div class="panel-head">
+        <button class="btn btn-add" onclick="openModal('tool')">添加工具</button>
+        <input class="admin-search" id="search-tools" placeholder="搜索名称 / 描述 / 标签…" oninput="onAdminSearch('tools', this.value)">
+      </div>
+      <div class="cat-nav admin-cat-nav" id="catNav-tools"></div>
       <div id="toolList"></div>
     </div>
 
     <div id="panel-resources" class="panel">
-      <button class="btn btn-add" onclick="openModal('resource')">添加资源包</button>
+      <div class="panel-head">
+        <button class="btn btn-add" onclick="openModal('resource')">添加资源包</button>
+        <input class="admin-search" id="search-resources" placeholder="搜索名称 / 描述…" oninput="onAdminSearch('resources', this.value)">
+      </div>
+      <div class="cat-nav admin-cat-nav" id="catNav-resources"></div>
       <div id="resourceList"></div>
     </div>
 
@@ -265,6 +300,8 @@ var cfg = {};
 var data = { site:{}, articles:[], tools:[], resources:[] };
 var fileSha = '';
 var isNewFile = false;
+// 后台每个 tab 各自的检索状态（搜索词 + 选中分类），内容多了也能快速定位
+var adminState = { articles:{q:'',cat:null}, tools:{q:'',cat:null}, resources:{q:'',cat:null} };
 
 // 粒子背景
 (function(){
@@ -486,36 +523,87 @@ function renderAll(){
   renderList('articleList', data.articles||[], 'article');
   renderList('toolList', data.tools||[], 'tool');
   renderList('resourceList', data.resources||[], 'resource');
+  buildAdminCatNav('articles'); buildAdminCatNav('tools'); buildAdminCatNav('resources');
+}
+
+function itemCardHtml(item, type, fullItems){
+  var realIdx = fullItems.indexOf(item);
+  if(type==='article'){
+    return '<div class="item-card"><div class="item-info"><div class="item-title">'+esc(item.title)+'</div><div class="item-desc">'+esc(item.url)+' · '+esc(item.date)+'</div></div><div class="item-actions"><button class="btn btn-edit" onclick="openModal(\'article\','+realIdx+')">编辑</button><button class="btn btn-del" onclick="delItem(\'articles\','+realIdx+')">删除</button></div></div>';
+  } else if(type==='tool'){
+    var tags='';
+    (item.tags||[]).forEach(function(t){ tags+='<span class="item-tag">'+esc(t)+'</span>'; });
+    return '<div class="item-card"><div class="item-info"><div class="item-title">'+esc(item.icon)+' '+esc(item.name)+'</div><div class="item-desc">'+esc(item.desc)+'</div><div class="item-tags">'+tags+'</div></div><div class="item-actions"><button class="btn btn-edit" onclick="openModal(\'tool\','+realIdx+')">编辑</button><button class="btn btn-del" onclick="delItem(\'tools\','+realIdx+')">删除</button></div></div>';
+  } else {
+    return '<div class="item-card"><div class="item-info"><div class="item-title">'+esc(item.icon)+' '+esc(item.name)+'</div><div class="item-desc">'+esc(item.desc)+'</div></div><div class="item-actions"><button class="btn btn-edit" onclick="openModal(\'resource\','+realIdx+')">编辑</button><button class="btn btn-del" onclick="delItem(\'resources\','+realIdx+')">删除</button></div></div>';
+  }
 }
 
 function renderList(listId, items, type){
   var el = document.getElementById(listId);
-  if(items.length===0){
+  if((items||[]).length===0){
     el.innerHTML = '<div style="text-align:center;padding:40px;color:var(--dim);">暂无内容，点击上方按钮添加</div>';
     return;
   }
-  // 按分类分组
-  var groups=[], map={};
-  items.forEach(function(item){ var cat=item.category||"未分类"; if(!map[cat]){ map[cat]=[]; groups.push(cat); } map[cat].push(item); });
-  var h = '';
-  groups.forEach(function(cat){
-    h += '<div class="admin-group"><div class="admin-group-title">'+esc(cat)+'</div>';
-    map[cat].forEach(function(item, idx){
-      // idx 需要在原数组中的真实索引
-      var realIdx = items.indexOf(item);
-      if(type==='article'){
-        h += '<div class="item-card"><div class="item-info"><div class="item-title">'+esc(item.title)+'</div><div class="item-desc">'+esc(item.url)+' · '+esc(item.date)+'</div></div><div class="item-actions"><button class="btn btn-edit" onclick="openModal(\'article\','+realIdx+')">编辑</button><button class="btn btn-del" onclick="delItem(\'articles\','+realIdx+')">删除</button></div></div>';
-      } else if(type==='tool'){
-        var tags='';
-        (item.tags||[]).forEach(function(t){ tags+='<span class="item-tag">'+esc(t)+'</span>'; });
-        h += '<div class="item-card"><div class="item-info"><div class="item-title">'+esc(item.icon)+' '+esc(item.name)+'</div><div class="item-desc">'+esc(item.desc)+'</div><div class="item-tags">'+tags+'</div></div><div class="item-actions"><button class="btn btn-edit" onclick="openModal(\'tool\','+realIdx+')">编辑</button><button class="btn btn-del" onclick="delItem(\'tools\','+realIdx+')">删除</button></div></div>';
-      } else if(type==='resource'){
-        h += '<div class="item-card"><div class="item-info"><div class="item-title">'+esc(item.icon)+' '+esc(item.name)+'</div><div class="item-desc">'+esc(item.desc)+'</div></div><div class="item-actions"><button class="btn btn-edit" onclick="openModal(\'resource\','+realIdx+')">编辑</button><button class="btn btn-del" onclick="delItem(\'resources\','+realIdx+')">删除</button></div></div>';
-      }
-    });
-    h += '</div>';
+  // 应用后台检索状态：按分类 + 关键词过滤
+  var st = adminState[type];
+  var q = (st.q||'').toLowerCase();
+  var filtered = (items||[]).filter(function(it){
+    if(st.cat && (it.category||'未分类')!==st.cat) return false;
+    if(q){
+      var hay = [it.title, it.name, it.desc, it.url, it.date, it.category, (it.tags||[]).join(' ')].join(' ').toLowerCase();
+      if(hay.indexOf(q)<0) return false;
+    }
+    return true;
   });
-  el.innerHTML = h;
+  if(filtered.length===0){
+    el.innerHTML = '<div style="text-align:center;padding:40px;color:var(--dim);">没有匹配的内容'+(q?'（关键词：'+esc(st.q)+'）':'')+'</div>';
+    return;
+  }
+  // 选中某个分类时直接平铺；否则按分类分组并显示数量
+  if(st.cat){
+    var h='';
+    filtered.forEach(function(item){ h += itemCardHtml(item, type, items); });
+    el.innerHTML = h;
+    return;
+  }
+  var groups=[], map={};
+  filtered.forEach(function(item){ var cat=item.category||"未分类"; if(!map[cat]){ map[cat]=[]; groups.push(cat); } map[cat].push(item); });
+  var hh='';
+  groups.forEach(function(cat){
+    hh += '<div class="admin-group"><div class="admin-group-title">'+esc(cat)+' <span class="admin-group-count">'+map[cat].length+'</span></div>';
+    map[cat].forEach(function(item){ hh += itemCardHtml(item, type, items); });
+    hh += '</div>';
+  });
+  el.innerHTML = hh;
+}
+
+// 后台搜索框输入
+function onAdminSearch(type, val){
+  adminState[type].q = val.trim();
+  renderList(type+'List', data[type+'s']||[], type);
+}
+
+// 后台分类导航：根据当前 tab 内容动态生成胶囊（带数量），点击即筛选
+function buildAdminCatNav(type){
+  var nav = document.getElementById('catNav-'+type);
+  if(!nav) return;
+  var items = data[type+'s']||[];
+  var seen={}, cats=[];
+  items.forEach(function(it){ var c=it.category||'未分类'; if(!seen[c]){ seen[c]=1; cats.push(c); } });
+  var st = adminState[type];
+  var html = '<button class="cat-pill cat-all '+(st.cat?'':'active')+'" data-all="1">全部 ('+items.length+')</button>';
+  cats.forEach(function(c){
+    var cnt = items.filter(function(it){ return (it.category||'未分类')===c; }).length;
+    html += '<button class="cat-pill '+(st.cat===c?'active':'')+'" data-cat="'+esc(c)+'">'+esc(c)+' <span class="admin-group-count">'+cnt+'</span></button>';
+  });
+  nav.innerHTML = html;
+  nav.onclick = function(e){
+    var b=e.target.closest('.cat-pill'); if(!b) return;
+    adminState[type].cat = b.dataset.all ? null : b.dataset.cat;
+    renderList(type+'List', data[type+'s']||[], type);
+    buildAdminCatNav(type);
+  };
 }
 
 function switchTab(tab, el){

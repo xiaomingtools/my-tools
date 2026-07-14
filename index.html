@@ -137,6 +137,7 @@ body {
 .cat-pill.active { color: #fff; border-color: var(--cyan); box-shadow: 0 0 14px rgba(0,240,255,0.35); }
 .cat-all { border-color: rgba(0,240,255,0.4); color: var(--cyan); }
 .cat-all:hover, .cat-all.active { box-shadow: 0 0 14px rgba(0,240,255,0.3); }
+.cat-count { color: var(--dim); font-size: 10px; margin-left: 4px; }
 .group-flash { animation: groupFlash 1.6s ease; }
 @keyframes groupFlash { 0% { box-shadow: 0 0 0 rgba(0,240,255,0); } 18% { box-shadow: 0 0 26px rgba(0,240,255,0.65); } 100% { box-shadow: 0 0 0 rgba(0,240,255,0); } }
 .view-all { display: inline-block; margin-top: 10px; font-size: 13px; color: var(--cyan); text-decoration: none; border: 1px solid rgba(0,240,255,0.3); border-radius: 8px; padding: 6px 18px; transition: all 0.3s ease; }
@@ -327,7 +328,8 @@ function buildCatNav(data){
   });
   var html = '<button class="cat-pill cat-all '+(currentCat?'':'active')+'" data-all="1">全部</button>';
   cats.forEach(function(c){
-    html += '<button class="cat-pill '+(currentCat===c?'active':'')+'" data-cat="'+escapeHtml(c)+'">'+escapeHtml(c)+'</button>';
+    var cnt = [data.articles,data.tools,data.resources].reduce(function(n,list){ return n + (list||[]).filter(function(it){ return (it.category||"未分类")===c; }).length; },0);
+    html += '<button class="cat-pill '+(currentCat===c?'active':'')+'" data-cat="'+escapeHtml(c)+'">'+escapeHtml(c)+' <span class="cat-count">'+cnt+'</span></button>';
   });
   nav.innerHTML = html;
   nav.onclick = function(e){
