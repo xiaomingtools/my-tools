@@ -157,6 +157,20 @@ body {
 .cat-all:hover, .cat-all.active { box-shadow:0 0 14px rgba(0,240,255,0.3); }
 .admin-group-count { color:var(--dim); font-weight:400; font-size:11px; margin-left:4px; text-shadow:none; }
 
+/* 导航管理面板样式 */
+.nav-card { background:var(--card); border:1px solid rgba(255,255,255,.1); border-radius:14px; padding:18px 20px; margin-bottom:16px; position:relative; }
+.nav-card-header { display:flex; align-items:center; gap:10px; margin-bottom:12px; }
+.nav-card-icon { font-size:22px; }
+.nav-card-name { font-size:16px; font-weight:700; color:#fff; flex:1; }
+.nav-card-actions { display:flex; gap:6px; }
+.nav-subs { display:flex; flex-wrap:wrap; gap:6px; margin-top:8px; padding-top:10px; border-top:1px solid rgba(255,255,255,.06); }
+.nav-sub-tag { display:inline-flex; align-items:center; gap:4px; font-size:12px; color:var(--cyan); background:rgba(0,240,255,.08); border:1px solid rgba(0,240,255,.25); border-radius:6px; padding:4px 10px; cursor:default; }
+.nav-sub-name { font-weight:500; }
+.nav-sub-del { font-size:11px; color:var(--pink); cursor:pointer; opacity:.6; transition:opacity .2s; margin-left:2px; text-decoration:none; }
+.nav-sub-del:hover { opacity:1; }
+.nav-add-sub { font-size:12px; color:var(--dim); border:1px dashed rgba(255,255,255,.15); border-radius:6px; padding:4px 12px; cursor:pointer; display:inline-flex; align-items:center; gap:4px; transition:all .2s; background:none; }
+.nav-add-sub:hover { color:var(--cyan); border-color:rgba(0,240,255,.4); }
+
 .modal-overlay {
   position:fixed; top:0; left:0; width:100%; height:100%;
   background:rgba(0,0,0,0.7); z-index:100;
@@ -242,6 +256,7 @@ body {
       <div class="tab" onclick="switchTab('tools', this)">工具推荐</div>
       <div class="tab" onclick="switchTab('resources', this)">资源合集</div>
       <div class="tab" onclick="switchTab('site', this)">站点设置</div>
+      <div class="tab" onclick="switchTab('nav', this)">导航管理</div>
     </div>
 
     <div id="panel-articles" class="panel active">
@@ -287,6 +302,14 @@ body {
         </div>
         <button class="btn-save" onclick="updateSite()">更新到内存（记得点顶部保存到 GitHub）</button>
       </div>
+    </div>
+
+    <div id="panel-nav" class="panel">
+      <div class="panel-head">
+        <button class="btn btn-add" onclick="openModal('navGroup')">添加一级分组</button>
+        <span style="font-size:12px;color:var(--dim);margin-left:auto;">在首页 categories.html 展示为分类导航网格</span>
+      </div>
+      <div id="navList"></div>
     </div>
   </div>
 </div>
@@ -639,7 +662,9 @@ function openModal(type, idx){
   var title = isEdit ? '编辑' : '添加';
   if(type==='article') title += '文章';
   else if(type==='tool') title += '工具';
-  else title += '资源包';
+  else if(type==='resource') title += '资源包';
+  else if(type==='navGroup') title = (isEdit?'编辑':'添加')+'一级分组';
+  else if(type==='navSub') title = (isEdit?'编辑':'添加')+'子分类';
 
   var h = '<h3>'+title+'</h3>';
   if(type==='article'){
@@ -660,6 +685,17 @@ function openModal(type, idx){
     h += '<div class="form-group"><label>分类（决定首页里的分组，如 AI 工具包 / 设计素材 / 效率软件）</label><input id="mCategory" value="'+esc(item.category||'')+'"></div>';
     h += '<div class="form-group"><label>描述</label><textarea id="mDesc">'+esc(item.desc||'')+'</textarea></div>';
     h += '<div class="form-group"><label>网盘链接（你的夸克网盘分享链接，形如 https://pan.quark.cn/s/xxxx）</label><input id="mUrl" value="'+esc(item.url||'')+'"></div>';
+  } else if(type==='navGroup'){
+    var gIdx = idx!==undefined ? idx : -1;
+    h += '<div class="form-group"><label>分组名称（如 AI 工具、效率提升）</label><input id="mGroupName" value="'+esc(item.name||'')+'" placeholder="AI 工具"></div>';
+    h += '<div class="form-group"><label>图标 Emoji（显示在分组标题旁）</label><input id="mGroupIcon" value="'+esc(item.icon||'')+'" placeholder="🤖"></div>';
+    h += '<input type="hidden" id="mNavGroupIdx" value="'+gIdx+'">';
+  } else if(type==='navSub'){
+    var pIdx = idx!==undefined ? (idx.pIdx||0) : -1;
+    var sIdx = idx!==undefined ? (idx.sIdx||0) : -1;
+    h += '<div class="form-group"><label>子分类名称（需与内容的「分类」字段完全一致才能匹配）</label><input id="mSubName" value="'+esc(item.name||'')+'" placeholder="AI 对话"></div>';
+    h += '<input type="hidden" id="mNavPIdx" value="'+pIdx+'">';
+    h += '<input type="hidden" id="mNavSIdx" value="'+sIdx+'">';
   }
   h += '<div class="modal-actions"><button class="btn-cancel" onclick="closeModal()">取消</button><button class="btn-save" onclick="saveModal(\''+type+'\','+idx+')">保存</button></div>';
 
@@ -691,6 +727,21 @@ function saveModal(type, idx){
     item.category = document.getElementById('mCategory').value.trim();
     item.desc = document.getElementById('mDesc').value.trim();
     item.url = document.getElementById('mUrl').value.trim();
+  } else if(type==='navGroup'){
+    var gIdx = parseInt(document.getElementById('mNavGroupIdx').value);
+    var gItem = { name: document.getElementById('mGroupName').value.trim(), icon: document.getElementById('mGroupIcon').value.trim()||'📂', subs: (item.subs||[]).slice() };
+    if(!data.navigation) data.navigation = [];
+    if(gIdx < 0){ data.navigation.push(gItem); }
+    else { data.navigation[gIdx] = gItem; }
+    closeModal(); renderAll(); showStatus('已更新到内存，记得点顶部保存到 GitHub','success'); return;
+  } else if(type==='navSub'){
+    var pIdx = parseInt(document.getElementById('mNavPIdx').value);
+    var sIdx = parseInt(document.getElementById('mNavSIdx').value);
+    var sName = document.getElementById('mSubName').value.trim();
+    if(!data.navigation || !data.navigation[pIdx]) { closeModal(); showStatus('错误：父分组不存在','error'); return; }
+    if(sIdx < 0){ data.navigation[pIdx].subs.push(sName); }
+    else { data.navigation[pIdx].subs[sIdx] = sName; }
+    closeModal(); renderAll(); showStatus('已更新到内存，记得点顶部保存到 GitHub','success'); return;
   }
   var key = type+'s';
   if(idx===undefined){
